@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="StartJadeGui" type="Application" factoryName="Application" nameIsGenerated="true">
+  <configuration default="false" name="Boot" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="jade.Boot" />
     <module name="pagent" />
-    <option name="PROGRAM_PARAMETERS" value="-gui " />
+    <option name="PROGRAM_PARAMETERS" value="-gui -agents StartAgent:com.sag.pagent.agents.StartAgent" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="jade.*" />

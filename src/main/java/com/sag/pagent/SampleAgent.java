@@ -1,19 +1,18 @@
 package com.sag.pagent;
-import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.TickerBehaviour;
-import jade.core.behaviours.WakerBehaviour;
 
-public class SampleAgent extends Agent {
+import com.sag.pagent.agents.LoggerAgent;
+import jade.core.behaviours.TickerBehaviour;
+
+public class SampleAgent extends LoggerAgent {
     @Override
     protected void setup() {
         // Printout a welcome message
-        System.out.println("Hello! Sample Agent "+getAID().getName()+" is ready.");
+        log.info("Hello! Sample Agent {} is ready.", getAID().getName());
         addBehaviour(new TickerBehaviour(this, 1000) {
-            protected void onTick() {
-                System.out.println(getAID().getName()+" heartbeat!");
-            }
-        }
+                         protected void onTick() {
+                             log.debug("heartbeat!");
+                         }
+                     }
         );
     }
 }
