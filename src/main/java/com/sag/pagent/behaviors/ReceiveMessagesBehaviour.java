@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
-public abstract class ReceiveMessageBehaviour extends CyclicBehaviour {
+public abstract class ReceiveMessagesBehaviour extends CyclicBehaviour {
     protected final transient Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
     private HashMap<String, HandleRespond> respondMap;
 
-    public ReceiveMessageBehaviour(Agent a) {
+    public ReceiveMessagesBehaviour(Agent a) {
         super(a);
         respondMap = new HashMap<>();
     }
