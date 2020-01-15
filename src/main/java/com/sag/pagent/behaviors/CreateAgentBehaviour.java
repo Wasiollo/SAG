@@ -10,18 +10,18 @@ import org.slf4j.LoggerFactory;
 public class CreateAgentBehaviour extends WakerBehaviour {
     protected final transient Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
     private Class<?> clazz;
-    private int size;
+    private int amount;
 
-    public CreateAgentBehaviour(Agent a, long timeout, final Class<?> clazz, int size) {
+    public CreateAgentBehaviour(Agent a, long timeout, final Class<?> clazz, int amount) {
         super(a, timeout);
         this.clazz = clazz;
-        this.size = size;
+        this.amount = amount;
     }
 
     @Override
     protected void onWake() {
         try {
-            for (int i = 0; i < size; ++i) {
+            for (int i = 0; i < amount; ++i) {
                 String name = clazz.getSimpleName() + '-' + i;
                 String path = clazz.getName();
                 createNewAgents(name, path);
