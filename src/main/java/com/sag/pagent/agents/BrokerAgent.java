@@ -40,7 +40,7 @@ public class BrokerAgent extends BasicAgent {
         addBehaviour(receiveMessages);
     }
 
-    class ReceiveMessages extends ReceiveMessagesBehaviour {
+    private class ReceiveMessages extends ReceiveMessagesBehaviour {
 
         public ReceiveMessages(Agent a) {
             super(a);
@@ -60,7 +60,7 @@ public class BrokerAgent extends BasicAgent {
 
     }
 
-    class HandleRegisterShopAgent extends OneShotBehaviour {
+    private class HandleRegisterShopAgent extends OneShotBehaviour {
         private ACLMessage msg;
 
         public HandleRegisterShopAgent(Agent a, ACLMessage msg) {
