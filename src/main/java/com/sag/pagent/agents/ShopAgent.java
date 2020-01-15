@@ -1,15 +1,20 @@
 package com.sag.pagent.agents;
 
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
+import com.sag.pagent.messages.MessagesUtils;
+import com.sag.pagent.messages.RegisterShopAgent;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.services.ServiceUtils;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
+
+import java.io.IOException;
 
 public class ShopAgent extends BasicAgent {
     ReceiveMessages receiveMessages;
@@ -64,7 +69,24 @@ public class ShopAgent extends BasicAgent {
             }
             log.debug("{} agent found", ServiceType.BROKER);
             removeBehaviour(this);
+            registerInBrokerAgent();
         }
     }
 
+    private void registerInBrokerAgent() {
+        addBehaviour(new OneShotBehaviour() {
+            @Override
+            public void action() {
+                log.debug("register itself in {} agent", ServiceType.BROKER);
+                ACLMessage msg = MessagesUtils.createMessage(ACLMessage.INFORM);
+                msg.addReceiver(brokerAgent);
+                try {
+                    msg.setContentObject(new RegisterShopAgent(myAgent.getName()));
+                    send(msg);
+                } catch (IOException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
+        });
+    }
 }
