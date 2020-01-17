@@ -13,7 +13,7 @@ import jade.lang.acl.UnreadableException;
 import java.util.HashSet;
 
 public class BrokerAgent extends BasicAgent {
-    ReceiveMessages receiveMessages;
+    private ReceiveMessages receiveMessages;
     private HashSet<String> registeredShopAgents;
 
     public BrokerAgent() {
