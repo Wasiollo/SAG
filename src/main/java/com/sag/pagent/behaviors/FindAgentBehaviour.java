@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 
 
-public class FindAgent extends TickerBehaviour {
+public class FindAgentBehaviour extends TickerBehaviour {
     protected final transient Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
     private AgentFoundListener agentFoundListener;
     private final ServiceType serviceType;
@@ -20,7 +20,7 @@ public class FindAgent extends TickerBehaviour {
         public void agentFound(AID agent);
     }
 
-    public FindAgent(Agent a, long timeout, AgentFoundListener agentFoundListener, ServiceType serviceType) {
+    public FindAgentBehaviour(Agent a, long timeout, AgentFoundListener agentFoundListener, ServiceType serviceType) {
         super(a, timeout);
         this.agentFoundListener = agentFoundListener;
         this.serviceType = serviceType;

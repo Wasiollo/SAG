@@ -1,6 +1,6 @@
 package com.sag.pagent.agents;
 
-import com.sag.pagent.behaviors.FindAgent;
+import com.sag.pagent.behaviors.FindAgentBehaviour;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.messages.RegisterShopAgent;
@@ -37,7 +37,7 @@ public class ShopAgent extends BasicAgent {
         super.setup();
         receiveMessages = new ReceiveMessages(this);
         addBehaviour(receiveMessages);
-        addBehaviour(new FindAgent(this, 1000, agentFoundListener, ServiceType.BROKER));
+        addBehaviour(new FindAgentBehaviour(this, 1000, agentFoundListener, ServiceType.BROKER));
     }
 
     private class ReceiveMessages extends ReceiveMessagesBehaviour {
@@ -53,7 +53,7 @@ public class ShopAgent extends BasicAgent {
 
     }
 
-    FindAgent.AgentFoundListener agentFoundListener = agent -> {
+    FindAgentBehaviour.AgentFoundListener agentFoundListener = agent -> {
         brokerAgent = agent;
         registerInBrokerAgent();
     };
