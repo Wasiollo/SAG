@@ -18,7 +18,7 @@ public class ServiceUtils {
     }
 
     public static AID findAgent(Agent agent, ServiceType type) {
-        log.debug("findAgent, type: {} ", type);
+        log.trace("findAgent, type: {} ", type);
         List<AID> agentList = findAgentList(agent, type);
         int size = agentList.size();
         int index = ThreadLocalRandom.current().nextInt(size) % size;
@@ -26,7 +26,7 @@ public class ServiceUtils {
     }
 
     public static List<AID> findAgentList(Agent agent, ServiceType type) {
-        log.debug("findAgentList, type: {} ", type);
+        log.trace("findAgentList, type: {} ", type);
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         sd.setType(type.getType());

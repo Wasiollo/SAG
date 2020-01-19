@@ -4,13 +4,12 @@ import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.services.ServiceUtils;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.TickerBehaviour;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 
 @Slf4j
-public class FindAgentBehaviour extends TickerBehaviour {
+public class FindAgentBehaviour extends MyTickerBehaviour {
     private AgentFoundListener agentFoundListener;
     private final ServiceType serviceType;
 
@@ -32,7 +31,7 @@ public class FindAgentBehaviour extends TickerBehaviour {
             log.debug("{} agent not found", serviceType);
             return;
         }
-        log.debug("{} agent found", serviceType);
+        log.debug("{} agent found: {}", serviceType, agent.getLocalName());
         myAgent.removeBehaviour(this);
         agentFoundListener.agentFound(agent);
     }
