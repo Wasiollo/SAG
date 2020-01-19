@@ -65,7 +65,7 @@ public class BrokerAgent extends BasicAgent {
         public void action() {
             try {
                 RegisterShopAgent registerShopAgent = (RegisterShopAgent) msg.getContentObject();
-                registeredShopAgents.add(registerShopAgent.shopAgentId);
+                registeredShopAgents.add(registerShopAgent.getShopAgentId());
             } catch (UnreadableException e) {
                 log.error("Exception while handling RegisterShopAgent message", e);
             }

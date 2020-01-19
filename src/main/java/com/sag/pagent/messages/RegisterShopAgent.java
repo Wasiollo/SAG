@@ -1,9 +1,10 @@
 package com.sag.pagent.messages;
 
-public class RegisterShopAgent implements java.io.Serializable {
-    public final String shopAgentId;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-    public RegisterShopAgent(String shopAgentId) {
-        this.shopAgentId = shopAgentId;
-    }
+@RequiredArgsConstructor
+@Getter
+public class RegisterShopAgent implements java.io.Serializable {
+    private final String shopAgentId;
 }

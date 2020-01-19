@@ -1,17 +1,14 @@
 package com.sag.pagent.services;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Getter
 public enum ServiceType {
     CUSTOMER("customer"),
     BROKER("broker"),
     SHOP("shop");
 
-    String type;
-
-    ServiceType(String type) {
-        this.type = type;
-    }
-
-    public String getType() {
-        return type;
-    }
+    private final String type;
 }
