@@ -1,6 +1,7 @@
 package com.sag.pagent.agents;
 
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
+import com.sag.pagent.messages.PurchaseOrder;
 import com.sag.pagent.messages.RegisterShopAgent;
 import com.sag.pagent.services.ServiceType;
 import jade.core.Agent;
@@ -48,6 +49,8 @@ public class BrokerAgent extends BasicAgent {
         if (content instanceof RegisterShopAgent) {
             log.debug("get message RegisterShopAgent");
             addBehaviour(new HandleRegisterShopAgent(this, msg));
+        } else if (content instanceof PurchaseOrder) {
+            log.debug("get message PurchaseOrder");
         } else {
             receiveMessages.replyNotUnderstood(msg);
         }

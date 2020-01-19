@@ -3,33 +3,23 @@ package com.sag.pagent.behaviors;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 
 @Slf4j
+@RequiredArgsConstructor
+@Getter
 public abstract class HandleRespond implements Serializable {
-    protected Agent myAgent;
-    private ACLMessage sendMessage;
-    private Boolean isFinished;
-
-    public HandleRespond(Agent agent, ACLMessage sendMessage) {
-        this.myAgent = agent;
-        this.sendMessage = sendMessage;
-        isFinished = false;
-    }
+    protected final Agent myAgent;
+    private final ACLMessage sendMessage;
+    private boolean finished = false;
 
     protected abstract void action(ACLMessage msg) throws UnreadableException;
 
-    public ACLMessage getSendMessage() {
-        return sendMessage;
-    }
-
     public void finished() {
-        isFinished = true;
-    }
-
-    public Boolean isFinished() {
-        return isFinished;
+        finished = true;
     }
 }
