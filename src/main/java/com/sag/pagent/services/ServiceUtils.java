@@ -8,9 +8,11 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ServiceUtils {
@@ -33,11 +35,9 @@ public class ServiceUtils {
         template.addServices(sd);
         List<AID> agents = new LinkedList<>();
         try {
-            DFAgentDescription[] result = DFService.search(agent, template);
-            for (DFAgentDescription dfAgentDescription : result) {
-                AID aid = dfAgentDescription.getName();
-                agents.add(aid);
-            }
+            agents = Arrays.stream(DFService.search(agent, template))
+                    .map(DFAgentDescription::getName)
+                    .collect(Collectors.toList());
         } catch (FIPAException fe) {
             log.error(fe.getMessage());
         }
