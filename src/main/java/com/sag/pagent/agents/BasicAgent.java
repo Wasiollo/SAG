@@ -4,6 +4,7 @@ import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,5 +46,9 @@ public abstract class BasicAgent extends Agent {
         } catch (FIPAException fe) {
             log.error(fe.getMessage());
         }
+    }
+
+    protected void logReceivedMessage(ACLMessage msg, final Class<?> clazz) {
+        log.debug("get message {} from {}", clazz.getSimpleName(), msg.getSender().getLocalName());
     }
 }

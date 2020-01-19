@@ -2,6 +2,8 @@ package com.sag.pagent.agents;
 
 import com.sag.pagent.behaviors.FindAgentBehaviour;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
+import com.sag.pagent.messages.ArticlesStatusQuery;
+import com.sag.pagent.messages.ArticlesStatusReply;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.messages.RegisterShopAgent;
 import com.sag.pagent.services.ServiceType;
@@ -10,6 +12,7 @@ import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -41,7 +44,14 @@ public class ShopAgent extends BasicAgent {
     }
 
     ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
-        receiveMessages.replyNotUnderstood(msg);
+        Object content = msg.getContentObject();
+
+        if (content instanceof ArticlesStatusQuery) {
+            logReceivedMessage(msg, ArticlesStatusQuery.class);
+            handleArticlesStatusQuery(msg);
+        } else {
+            receiveMessages.replyNotUnderstood(msg);
+        }
     };
 
     FindAgentBehaviour.AgentFoundListener agentFoundListener = agent -> {
@@ -64,5 +74,26 @@ public class ShopAgent extends BasicAgent {
                 }
             }
         });
+    }
+
+    private void handleArticlesStatusQuery(ACLMessage msg) {
+        try {
+            ACLMessage reply = msg.createReply();
+            ArticlesStatusQuery articlesStatusQuery = (ArticlesStatusQuery) msg.getContentObject();
+            ArticlesStatusReply articlesStatusReply = createArticlesStatusReply(articlesStatusQuery);
+            reply.setContentObject(articlesStatusReply);
+            send(reply);
+        } catch (UnreadableException | IOException e) {
+            log.error("Exception while handling ArticlesStatusQuery message", e);
+        }
+    }
+
+    /**
+     * TODO: create ArticlesStatusReply
+     */
+    @SuppressWarnings("unused")
+    private ArticlesStatusReply createArticlesStatusReply(ArticlesStatusQuery articlesStatusQuery) {
+        log.trace("createArticlesStatusReply");
+        return new ArticlesStatusReply();
     }
 }

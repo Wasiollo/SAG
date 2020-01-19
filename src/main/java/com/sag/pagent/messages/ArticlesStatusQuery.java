@@ -5,6 +5,5 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class RegisterShopAgent implements java.io.Serializable {
-    private final String shopAgentName;
+public class ArticlesStatusQuery implements java.io.Serializable {
 }
