@@ -7,6 +7,7 @@ import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.services.ServiceUtils;
 import jade.core.AID;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.WakerBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.util.List;
 
 @Slf4j
 public class CustomerAgent extends BasicAgent {
@@ -38,22 +38,34 @@ public class CustomerAgent extends BasicAgent {
         super.setup();
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
+        addBehaviour(new WakerBehaviour(this, 100) {
+            @Override
+            protected void onWake() {
+                sendPurchaseOrderToBrokerAgents(createPurchaseOrder());
+            }
+        });
     }
 
     ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
         receiveMessages.replyNotUnderstood(msg);
     };
 
-    @SuppressWarnings("unused")
-    private void sendArticleListToBrokerAgents(@Nonnull PurchaseOrder purchaseOrder) {
+    private PurchaseOrder createPurchaseOrder() {
+        log.trace("createPurchaseOrder");
+        return new PurchaseOrder(
+                getName(),
+                ServiceUtils.findAgentList(this, ServiceType.BROKER)
+        );
+    }
+
+    private void sendPurchaseOrderToBrokerAgents(@Nonnull PurchaseOrder purchaseOrder) {
         addBehaviour(new OneShotBehaviour() {
             @Override
             public void action() {
                 try {
-                    log.debug("register itself in {} agent", ServiceType.BROKER);
+                    log.debug("send purchaseOrder to {}", purchaseOrder.getBrokerAgentLocalNameList());
                     ACLMessage msg = MessagesUtils.createMessage(ACLMessage.PROPOSE);
-                    List<AID> agents = ServiceUtils.findAgentList(myAgent, ServiceType.BROKER);
-                    for (AID agent : agents) {
+                    for (AID agent : purchaseOrder.getBrokerAgentIdList()) {
                         msg.addReceiver(agent);
                     }
                     msg.setContentObject(purchaseOrder);
