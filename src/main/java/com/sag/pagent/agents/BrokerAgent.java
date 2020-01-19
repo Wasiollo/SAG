@@ -6,7 +6,6 @@ import com.sag.pagent.messages.*;
 import com.sag.pagent.services.ServiceType;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
@@ -53,7 +52,7 @@ public class BrokerAgent extends BasicAgent {
 
         if (content instanceof RegisterShopAgent) {
             logReceivedMessage(msg, RegisterShopAgent.class);
-            addBehaviour(new HandleRegisterShopAgent(this, msg));
+            handleRegisterShopAgent(msg);
         } else if (content instanceof PurchaseOrder) {
             logReceivedMessage(msg, PurchaseOrder.class);
             handlePurchaseOrder(msg);
@@ -61,6 +60,15 @@ public class BrokerAgent extends BasicAgent {
             receiveMessages.replyNotUnderstood(msg);
         }
     };
+
+    private void handleRegisterShopAgent(ACLMessage msg) {
+        try {
+            RegisterShopAgent registerShopAgent = (RegisterShopAgent) msg.getContentObject();
+            registeredShopAgents.add(new AID(registerShopAgent.getShopAgentName(), AID.ISGUID));
+        } catch (UnreadableException e) {
+            log.error("Exception while handling RegisterShopAgent message", e);
+        }
+    }
 
     /**
      * TODO: Register PurchaseOrder
@@ -92,25 +100,6 @@ public class BrokerAgent extends BasicAgent {
     @SuppressWarnings("unused")
     private void updatePurchaseOrderStatus(ArticlesStatusReply articlesStatusReply) {
         log.trace("updatePurchaseOrderStatus");
-    }
-
-    private class HandleRegisterShopAgent extends OneShotBehaviour {
-        private ACLMessage msg;
-
-        public HandleRegisterShopAgent(Agent a, ACLMessage msg) {
-            super(a);
-            this.msg = msg;
-        }
-
-        @Override
-        public void action() {
-            try {
-                RegisterShopAgent registerShopAgent = (RegisterShopAgent) msg.getContentObject();
-                registeredShopAgents.add(new AID(registerShopAgent.getShopAgentName(), AID.ISGUID));
-            } catch (UnreadableException e) {
-                log.error("Exception while handling RegisterShopAgent message", e);
-            }
-        }
     }
 
     private class HandleArticlesStatusReplies extends HandleManyResponds {

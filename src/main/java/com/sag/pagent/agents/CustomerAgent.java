@@ -6,7 +6,6 @@ import com.sag.pagent.messages.PurchaseOrder;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.services.ServiceUtils;
 import jade.core.AID;
-import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -50,6 +49,9 @@ public class CustomerAgent extends BasicAgent {
         receiveMessages.replyNotUnderstood(msg);
     };
 
+    /**
+     * TODO: Create PurchaseOrder
+     */
     private PurchaseOrder createPurchaseOrder() {
         log.trace("createPurchaseOrder");
         return new PurchaseOrder(
@@ -59,21 +61,16 @@ public class CustomerAgent extends BasicAgent {
     }
 
     private void sendPurchaseOrderToBrokerAgents(@Nonnull PurchaseOrder purchaseOrder) {
-        addBehaviour(new OneShotBehaviour() {
-            @Override
-            public void action() {
-                try {
-                    log.debug("send purchaseOrder to {}", purchaseOrder.getBrokerAgentLocalNameList());
-                    ACLMessage msg = MessagesUtils.createMessage(ACLMessage.PROPOSE);
-                    for (AID agent : purchaseOrder.getBrokerAgentIdList()) {
-                        msg.addReceiver(agent);
-                    }
-                    msg.setContentObject(purchaseOrder);
-                    send(msg);
-                } catch (IOException ex) {
-                    log.error(ex.getMessage());
-                }
+        log.debug("send purchaseOrder to {}", purchaseOrder.getBrokerAgentLocalNameList());
+        try {
+            ACLMessage msg = MessagesUtils.createMessage(ACLMessage.PROPOSE);
+            for (AID agent : purchaseOrder.getBrokerAgentIdList()) {
+                msg.addReceiver(agent);
             }
-        });
+            msg.setContentObject(purchaseOrder);
+            send(msg);
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+        }
     }
 }
