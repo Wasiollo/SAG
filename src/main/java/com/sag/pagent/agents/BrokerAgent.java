@@ -94,14 +94,6 @@ public class BrokerAgent extends BasicAgent {
         }
     }
 
-    /**
-     * TODO: Update PurchaseOrder. Who have the lowest price etc.
-     */
-    @SuppressWarnings("unused")
-    private void updatePurchaseOrderStatus(ArticlesStatusReply articlesStatusReply) {
-        log.trace("updatePurchaseOrderStatus");
-    }
-
     private class HandleArticlesStatusReplies extends HandleManyResponds {
         public HandleArticlesStatusReplies(Agent myAgent, ACLMessage sendMessage) {
             super(myAgent, sendMessage);
@@ -121,5 +113,13 @@ public class BrokerAgent extends BasicAgent {
         protected void afterFinished(ACLMessage msg) {
             log.debug("afterFinished");
         }
+    }
+
+    /**
+     * TODO: Update PurchaseOrder. Who have the lowest price etc.
+     */
+    @SuppressWarnings("unused")
+    private void updatePurchaseOrderStatus(ArticlesStatusReply articlesStatusReply) {
+        log.trace("updatePurchaseOrderStatus");
     }
 }
