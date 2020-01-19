@@ -13,7 +13,7 @@ import jade.lang.acl.UnreadableException;
 import java.util.HashSet;
 
 public class BrokerAgent extends BasicAgent {
-    private ReceiveMessages receiveMessages;
+    private ReceiveMessagesBehaviour receiveMessages;
     private HashSet<String> registeredShopAgents;
 
     public BrokerAgent() {
@@ -36,29 +36,20 @@ public class BrokerAgent extends BasicAgent {
     @Override
     protected void setup() {
         super.setup();
-        receiveMessages = new ReceiveMessages(this);
+        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
     }
 
-    private class ReceiveMessages extends ReceiveMessagesBehaviour {
+    ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
+        Object content = msg.getContentObject();
 
-        public ReceiveMessages(Agent a) {
-            super(a);
+        if (content instanceof RegisterShopAgent) {
+            log.debug("get message RegisterShopAgent");
+            addBehaviour(new HandleRegisterShopAgent(this, msg));
+        } else {
+            receiveMessages.replyNotUnderstood(msg);
         }
-
-        @Override
-        protected void receivedNewMessage(ACLMessage msg) throws UnreadableException {
-            Object content = msg.getContentObject();
-
-            if (content instanceof RegisterShopAgent) {
-                log.debug("get message RegisterShopAgent");
-                addBehaviour(new HandleRegisterShopAgent(myAgent, msg));
-            } else {
-                replyNotUnderstood(msg);
-            }
-        }
-
-    }
+    };
 
     private class HandleRegisterShopAgent extends OneShotBehaviour {
         private ACLMessage msg;

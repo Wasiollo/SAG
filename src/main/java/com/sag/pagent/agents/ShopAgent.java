@@ -6,17 +6,15 @@ import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.messages.RegisterShopAgent;
 import com.sag.pagent.services.ServiceType;
 import jade.core.AID;
-import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.UnreadableException;
 
 import java.io.IOException;
 
 public class ShopAgent extends BasicAgent {
-    private ReceiveMessages receiveMessages;
+    private ReceiveMessagesBehaviour receiveMessages;
     private AID brokerAgent;
 
     @Override
@@ -35,23 +33,14 @@ public class ShopAgent extends BasicAgent {
     @Override
     protected void setup() {
         super.setup();
-        receiveMessages = new ReceiveMessages(this);
+        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
         addBehaviour(new FindAgentBehaviour(this, 1000, agentFoundListener, ServiceType.BROKER));
     }
 
-    private class ReceiveMessages extends ReceiveMessagesBehaviour {
-
-        public ReceiveMessages(Agent a) {
-            super(a);
-        }
-
-        @Override
-        protected void receivedNewMessage(ACLMessage msg) throws UnreadableException {
-            replyNotUnderstood(msg);
-        }
-
-    }
+    ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
+        receiveMessages.replyNotUnderstood(msg);
+    };
 
     FindAgentBehaviour.AgentFoundListener agentFoundListener = agent -> {
         brokerAgent = agent;

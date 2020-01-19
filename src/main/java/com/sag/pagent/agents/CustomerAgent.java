@@ -1,10 +1,12 @@
 package com.sag.pagent.agents;
 
+import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.services.ServiceType;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 
 public class CustomerAgent extends BasicAgent {
+    private ReceiveMessagesBehaviour receiveMessages;
 
     @Override
     protected void addServices(DFAgentDescription dfd) {
@@ -18,4 +20,15 @@ public class CustomerAgent extends BasicAgent {
         sd.setName(type);
         return sd;
     }
+
+    @Override
+    protected void setup() {
+        super.setup();
+        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
+        addBehaviour(receiveMessages);
+    }
+
+    ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
+        receiveMessages.replyNotUnderstood(msg);
+    };
 }

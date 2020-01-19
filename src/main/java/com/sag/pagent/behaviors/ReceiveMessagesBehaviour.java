@@ -7,14 +7,21 @@ import jade.lang.acl.UnreadableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public abstract class ReceiveMessagesBehaviour extends CyclicBehaviour {
+public class ReceiveMessagesBehaviour extends CyclicBehaviour {
     protected final transient Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
+    private ReceiveMessageListener receiveMessageListener;
     private HashMap<String, HandleRespond> respondMap;
 
-    public ReceiveMessagesBehaviour(Agent a) {
+    public interface ReceiveMessageListener extends Serializable {
+        public void receivedNewMessage(ACLMessage msg) throws UnreadableException;
+    }
+
+    public ReceiveMessagesBehaviour(Agent a, ReceiveMessageListener receiveMessageListener) {
         super(a);
+        this.receiveMessageListener = receiveMessageListener;
         respondMap = new HashMap<>();
     }
 
@@ -35,7 +42,7 @@ public abstract class ReceiveMessagesBehaviour extends CyclicBehaviour {
             } else if (msg.getPerformative() == ACLMessage.NOT_UNDERSTOOD) {
                 log.error("received NOT_UNDERSTOOD messaged with not know conversationId {}", msg.getConversationId());
             } else {
-                receivedNewMessage(msg);
+                receiveMessageListener.receivedNewMessage(msg);
             }
         } catch (Exception ex) {
             log.error(ex.getMessage());
@@ -54,8 +61,6 @@ public abstract class ReceiveMessagesBehaviour extends CyclicBehaviour {
         }
     }
 
-    protected abstract void receivedNewMessage(ACLMessage msg) throws UnreadableException;
-
     public void registerRespond(HandleRespond handleRespond) {
         respondMap.put(handleRespond.getSendMessage().getConversationId(), handleRespond);
     }
@@ -64,7 +69,7 @@ public abstract class ReceiveMessagesBehaviour extends CyclicBehaviour {
         respondMap.remove(conversationId);
     }
 
-    protected void replyNotUnderstood(ACLMessage msg) {
+    public void replyNotUnderstood(ACLMessage msg) {
         log.error("NotUnderstood message with conversationId: {}", msg.getConversationId());
         try {
             java.io.Serializable content = msg.getContentObject();
