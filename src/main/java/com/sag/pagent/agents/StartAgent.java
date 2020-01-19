@@ -1,8 +1,11 @@
 package com.sag.pagent.agents;
 
 import com.sag.pagent.behaviors.CreateAgentBehaviour;
+import jade.core.Agent;
+import lombok.extern.slf4j.Slf4j;
 
-public class StartAgent extends LoggerAgent {
+@Slf4j
+public class StartAgent extends Agent {
     @Override
     protected void setup() {
         log.info("start");

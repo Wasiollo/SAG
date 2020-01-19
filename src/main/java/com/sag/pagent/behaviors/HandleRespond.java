@@ -3,13 +3,12 @@ package com.sag.pagent.behaviors;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 
+@Slf4j
 public abstract class HandleRespond implements Serializable {
-    protected final transient Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
     protected Agent myAgent;
     private ACLMessage sendMessage;
     private Boolean isFinished;

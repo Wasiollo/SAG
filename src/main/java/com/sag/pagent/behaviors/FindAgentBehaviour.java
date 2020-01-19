@@ -5,19 +5,17 @@ import com.sag.pagent.services.ServiceUtils;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 
-
+@Slf4j
 public class FindAgentBehaviour extends TickerBehaviour {
-    protected final transient Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
     private AgentFoundListener agentFoundListener;
     private final ServiceType serviceType;
 
     public interface AgentFoundListener extends Serializable {
-        public void agentFound(AID agent);
+        void agentFound(AID agent);
     }
 
     public FindAgentBehaviour(Agent a, long timeout, AgentFoundListener agentFoundListener, ServiceType serviceType) {

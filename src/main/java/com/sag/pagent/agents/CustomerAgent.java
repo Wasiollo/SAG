@@ -4,7 +4,9 @@ import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.services.ServiceType;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CustomerAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
 

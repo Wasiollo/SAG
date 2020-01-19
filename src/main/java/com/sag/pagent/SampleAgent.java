@@ -1,9 +1,11 @@
 package com.sag.pagent;
 
-import com.sag.pagent.agents.LoggerAgent;
+import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
+import lombok.extern.slf4j.Slf4j;
 
-public class SampleAgent extends LoggerAgent {
+@Slf4j
+public class SampleAgent extends Agent {
     @Override
     protected void setup() {
         // Printout a welcome message

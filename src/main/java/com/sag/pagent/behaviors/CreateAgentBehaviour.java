@@ -4,11 +4,10 @@ import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CreateAgentBehaviour extends WakerBehaviour {
-    protected final transient Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
     private Class<?> clazz;
     private int amount;
 

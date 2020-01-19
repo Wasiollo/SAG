@@ -10,9 +10,11 @@ import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+@Slf4j
 public class ShopAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
     private AID brokerAgent;

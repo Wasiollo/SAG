@@ -9,9 +9,11 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
 
+@Slf4j
 public class BrokerAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
     private HashSet<String> registeredShopAgents;

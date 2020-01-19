@@ -4,19 +4,18 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
+@Slf4j
 public class ReceiveMessagesBehaviour extends CyclicBehaviour {
-    protected final transient Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
     private ReceiveMessageListener receiveMessageListener;
     private HashMap<String, HandleRespond> respondMap;
 
     public interface ReceiveMessageListener extends Serializable {
-        public void receivedNewMessage(ACLMessage msg) throws UnreadableException;
+        void receivedNewMessage(ACLMessage msg) throws UnreadableException;
     }
 
     public ReceiveMessagesBehaviour(Agent a, ReceiveMessageListener receiveMessageListener) {

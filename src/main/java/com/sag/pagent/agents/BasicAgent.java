@@ -1,10 +1,13 @@
 package com.sag.pagent.agents;
 
+import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAException;
+import lombok.extern.slf4j.Slf4j;
 
-public abstract class BasicAgent extends LoggerAgent {
+@Slf4j
+public abstract class BasicAgent extends Agent {
 
     @Override
     protected void setup() {
