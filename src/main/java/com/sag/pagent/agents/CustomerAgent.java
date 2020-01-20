@@ -16,13 +16,15 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 public class CustomerAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
-    private List<Article> customerNeeds;
+    private List<Article> customerNeeds = new ArrayList<>();
+    private List<Article> needsSentToPurchase = new ArrayList<>();
 
     @Override
     protected void addServices(DFAgentDescription dfd) {
@@ -72,11 +74,40 @@ public class CustomerAgent extends BasicAgent {
      * TODO: Create PurchaseOrder
      */
     private PurchaseOrder createPurchaseOrder() {
-        log.trace("createPurchaseOrder");
         return new PurchaseOrder(
                 getName(),
-                ServiceUtils.findAgentList(this, ServiceType.BROKER)
+                ServiceUtils.findAgentList(this, ServiceType.BROKER),
+                chooseArticlesToPurchase()
         );
+    }
+
+//    TODO do this
+    private List<Article> chooseArticlesToPurchase() {
+
+        return null;
+    }
+
+//    TODO use this in chooseArticlesToPurchase
+    private List<Article> getDiffBetweenNeedsAndSent() {
+        List<Article> diffArticleList = new ArrayList<>();
+        customerNeeds.forEach(cn -> {
+            Optional<Article> sentArticle = needsSentToPurchase.stream()
+                    .filter(ntp -> ntp.getName().equals(cn.getName()))
+                    .findAny();
+            if (sentArticle.isPresent()) {
+                if (sentArticle.get().getAmount() < cn.getAmount()) {
+                    diffArticleList.add(
+                            Article.builder()
+                                    .name(cn.getName())
+                                    .amount(cn.getAmount() - sentArticle.get().getAmount())
+                                    .build()
+                    );
+                }
+            } else {
+                diffArticleList.add(cn);
+            }
+        });
+        return diffArticleList;
     }
 
     private void sendPurchaseOrderToBrokerAgents(@Nonnull PurchaseOrder purchaseOrder) {

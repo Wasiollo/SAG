@@ -1,25 +1,26 @@
 package com.sag.pagent.messages;
 
+import com.sag.pagent.shop.domain.Article;
 import jade.core.AID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Getter
-public class PurchaseOrder implements java.io.Serializable {
+public class PurchaseOrder implements Serializable {
     private final String customerAgentId;
     private final LinkedList<String> brokerAgentNameList;
+    private final List<Article> articlesToBuy;
 
-    public PurchaseOrder(String customerAgentId, List<AID> brokerAgentIdList) {
-        this(
-                customerAgentId,
-                brokerAgentIdList.stream()
+    public PurchaseOrder(String customerAgentId, List<AID> brokerAgentIdList, List<Article> articlesToBuy) {
+        this(customerAgentId, brokerAgentIdList.stream()
                         .map(AID::getName)
-                        .collect(Collectors.toCollection(LinkedList::new)));
+                        .collect(Collectors.toCollection(LinkedList::new)), articlesToBuy);
     }
 
     public List<AID> getBrokerAgentIdList() {
