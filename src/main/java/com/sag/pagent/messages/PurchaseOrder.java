@@ -16,11 +16,14 @@ public class PurchaseOrder implements Serializable {
     private final String customerAgentId;
     private final LinkedList<String> brokerAgentNameList;
     private final List<Article> articlesToBuy;
+    private final String uid;
 
     public PurchaseOrder(String customerAgentId, List<AID> brokerAgentIdList, List<Article> articlesToBuy) {
         this(customerAgentId, brokerAgentIdList.stream()
                         .map(AID::getName)
-                        .collect(Collectors.toCollection(LinkedList::new)), articlesToBuy);
+                        .collect(Collectors.toCollection(LinkedList::new)),
+                articlesToBuy,
+                MessagesUtils.generateRandomStringByUUIDNoDash());
     }
 
     public List<AID> getBrokerAgentIdList() {
