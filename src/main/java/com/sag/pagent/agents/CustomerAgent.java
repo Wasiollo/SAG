@@ -1,12 +1,12 @@
 package com.sag.pagent.agents;
 
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
-import com.sag.pagent.behaviors.RegenerateCustomerNeedsBehaviour;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.messages.PurchaseOrder;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.services.ServiceUtils;
 import com.sag.pagent.shop.domain.Article;
+import com.sag.pagent.shop.service.ArticleService;
 import jade.core.AID;
 import jade.core.behaviours.WakerBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -19,12 +19,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class CustomerAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
     private List<Article> customerNeeds = new ArrayList<>();
     private List<Article> needsSentToPurchase = new ArrayList<>();
+    private static final Integer MAX_GENERATED_NEEDS = 100;
 
     @Override
     protected void addServices(DFAgentDescription dfd) {
@@ -42,6 +46,7 @@ public class CustomerAgent extends BasicAgent {
     @Override
     protected void setup() {
         super.setup();
+        customerNeeds = ArticleService.generateClientNeeds(MAX_GENERATED_NEEDS);
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
         addBehaviour(new WakerBehaviour(this, 100) {
@@ -50,29 +55,12 @@ public class CustomerAgent extends BasicAgent {
                 sendPurchaseOrderToBrokerAgents(createPurchaseOrder());
             }
         });
-        addBehaviour(new RegenerateCustomerNeedsBehaviour(this, 10000, needsGeneratedListener));
     }
-
-    private RegenerateCustomerNeedsBehaviour.NeedsGeneratedListener needsGeneratedListener = supplies -> {
-        for (Article article : supplies) {
-            Optional<Article> customerArticle = customerNeeds.stream()
-                    .filter(art -> art.getName().equals(article.getName()))
-                    .findAny();
-            if (customerArticle.isPresent()) {
-                customerArticle.get().addAmount(article.getAmount());
-            } else {
-                customerNeeds.add(article);
-            }
-        }
-    };
 
     private ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
         receiveMessages.replyNotUnderstood(msg);
     };
 
-    /**
-     * TODO: Create PurchaseOrder
-     */
     private PurchaseOrder createPurchaseOrder() {
         return new PurchaseOrder(
                 getName(),
@@ -81,13 +69,30 @@ public class CustomerAgent extends BasicAgent {
         );
     }
 
-//    TODO do this
     private List<Article> chooseArticlesToPurchase() {
+        List<Article> needsDiff = getDiffBetweenNeedsAndSent();
+        List<Article> randomlyChosenArticles = needsDiff.stream()
+                .filter(n -> new Random().nextBoolean())
+                .peek(n -> n.setAmount(ThreadLocalRandom.current().nextInt(0, n.getAmount() + 1)))
+                .collect(Collectors.toList());
 
-        return null;
+        addArticlesToPurchaseToSentList(randomlyChosenArticles);
+
+        return randomlyChosenArticles;
     }
 
-//    TODO use this in chooseArticlesToPurchase
+    private void addArticlesToPurchaseToSentList(List<Article> randomlyChosenArticles) {
+        List<Article> swapList = new ArrayList<>();
+        randomlyChosenArticles.forEach(article -> {
+            needsSentToPurchase.stream()
+                    .filter(ntp -> ntp.getName().equals(article.getName()))
+                    .findAny()
+                    .ifPresent(foundArticle -> article.addAmount(foundArticle.getAmount()));
+            swapList.add(article);
+        });
+        needsSentToPurchase = swapList;
+    }
+
     private List<Article> getDiffBetweenNeedsAndSent() {
         List<Article> diffArticleList = new ArrayList<>();
         customerNeeds.forEach(cn -> {
