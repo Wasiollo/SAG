@@ -50,7 +50,7 @@ public class ShopAgent extends BasicAgent {
         addBehaviour(new RegenerateShopSuppliesBehaviour(this, 10000, supplyGeneratedListener));
     }
 
-    ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
+    private ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
         Object content = msg.getContentObject();
 
         if (content instanceof ArticlesStatusQuery) {
