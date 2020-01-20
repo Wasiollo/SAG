@@ -26,7 +26,7 @@ public class CreateAgentBehaviour extends WakerBehaviour {
                 createNewAgents(name, path);
             }
         } catch (StaleProxyException ex) {
-            log.error(ex.getMessage());
+            log.error("StaleProxyException occured", ex);
         }
     }
 

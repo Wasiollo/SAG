@@ -21,7 +21,7 @@ public abstract class BasicAgent extends Agent {
         try {
             DFService.register(this, dfd);
         } catch (FIPAException fe) {
-            log.error(fe.getMessage());
+            log.error("FIPAException in registerService", fe);
         }
     }
 
@@ -44,7 +44,7 @@ public abstract class BasicAgent extends Agent {
         try {
             DFService.deregister(this);
         } catch (FIPAException fe) {
-            log.error(fe.getMessage());
+            log.error("FIPAException in deregisterService", fe);
         }
     }
 

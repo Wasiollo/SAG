@@ -91,7 +91,7 @@ public class ShopAgent extends BasicAgent {
                     msg.setContentObject(new RegisterShopAgent(myAgent.getName()));
                     send(msg);
                 } catch (IOException ex) {
-                    log.error(ex.getMessage());
+                    log.error("IOException in registerInBrokerAgent", ex);
                 }
             }
         });

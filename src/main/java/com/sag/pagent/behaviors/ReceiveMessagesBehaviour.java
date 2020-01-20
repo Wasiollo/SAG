@@ -44,7 +44,7 @@ public class ReceiveMessagesBehaviour extends CyclicBehaviour {
                 receiveMessageListener.receivedNewMessage(msg);
             }
         } catch (Exception ex) {
-            log.error(ex.getMessage());
+            log.error("Exception occurred parsing Message");
         }
     }
 
@@ -77,7 +77,7 @@ public class ReceiveMessagesBehaviour extends CyclicBehaviour {
             reply.setContentObject(content);
             myAgent.send(reply);
         } catch (Exception ex) {
-            log.error(ex.getMessage());
+            log.error("Exception occurred during reply for not understood message", ex);
         }
     }
 }

@@ -125,7 +125,7 @@ public class CustomerAgent extends BasicAgent {
             msg.setContentObject(purchaseOrder);
             send(msg);
         } catch (IOException ex) {
-            log.error(ex.getMessage());
+            log.error("Error occured in sendPurchaseOrderToBrokerAgents", ex);
         }
     }
 }

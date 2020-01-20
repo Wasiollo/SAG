@@ -39,7 +39,7 @@ public class ServiceUtils {
                     .map(DFAgentDescription::getName)
                     .collect(Collectors.toList());
         } catch (FIPAException fe) {
-            log.error(fe.getMessage());
+            log.error("FIPAException in findAgentList", fe);
         }
         return agents;
     }

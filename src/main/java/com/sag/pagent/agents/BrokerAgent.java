@@ -94,7 +94,7 @@ public class BrokerAgent extends BasicAgent {
             send(msg);
             receiveMessages.registerRespond(new HandleArticlesStatusReplies(this, msg));
         } catch (IOException ex) {
-            log.error(ex.getMessage());
+            log.error("IOException in sendArticlesStatusQuery", ex);
         }
     }
 
