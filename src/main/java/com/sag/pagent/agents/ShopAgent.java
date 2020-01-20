@@ -109,12 +109,25 @@ public class ShopAgent extends BasicAgent {
         }
     }
 
-    /**
-     * TODO: create ArticlesStatusReply
-     */
-    @SuppressWarnings("unused")
     private ArticlesStatusReply createArticlesStatusReply(ArticlesStatusQuery articlesStatusQuery) {
         log.trace("createArticlesStatusReply");
-        return new ArticlesStatusReply();
+        List<Article> articlesToStatusReply = new ArrayList<>();
+        articlesStatusQuery.getArticlesToBuy().forEach(atb ->
+                shopArticles.stream()
+                        .filter(sa -> atb.getName().equals(sa.getName()))
+                        .findAny()
+                        .ifPresent(sa -> {
+                            if (sa.getAmount() < atb.getAmount()) {
+                                articlesToStatusReply.add(sa);
+                            } else {
+                                Article articleOffer = Article.builder()
+                                        .name(sa.getName())
+                                        .price(sa.getPrice())
+                                        .amount(atb.getAmount())
+                                        .build();
+                                articlesToStatusReply.add(articleOffer);
+                            }
+                        }));
+        return new ArticlesStatusReply(articlesToStatusReply);
     }
 }

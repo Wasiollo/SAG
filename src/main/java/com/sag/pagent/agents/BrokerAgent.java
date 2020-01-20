@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class BrokerAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
     private HashSet<AID> registeredShopAgents;
+    private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
 
     public BrokerAgent() {
         registeredShopAgents = new HashSet<>();
@@ -47,7 +49,7 @@ public class BrokerAgent extends BasicAgent {
         addBehaviour(receiveMessages);
     }
 
-    ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
+    private ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
         Object content = msg.getContentObject();
 
         if (content instanceof RegisterShopAgent) {
@@ -70,12 +72,14 @@ public class BrokerAgent extends BasicAgent {
         }
     }
 
-    /**
-     * TODO: Register PurchaseOrder
-     */
-    @SuppressWarnings("unused")
     private void handlePurchaseOrder(ACLMessage msg) {
-        sendArticlesStatusQuery(new ArticlesStatusQuery());
+        try {
+            PurchaseOrder purchaseOrder = (PurchaseOrder) msg.getContentObject();
+            purchaseOrders.add(purchaseOrder);
+            sendArticlesStatusQuery(new ArticlesStatusQuery(purchaseOrder.getArticlesToBuy()));
+        } catch (UnreadableException e) {
+            log.error("Exception while handling PurchaseOrder message", e);
+        }
     }
 
     private void sendArticlesStatusQuery(@Nonnull ArticlesStatusQuery articlesStatusQuery) {
