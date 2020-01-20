@@ -9,4 +9,8 @@ public class Article {
     private String name;
     private Double price;
     private Integer amount;
+
+    public void addAmount(Integer amountToAdd){
+        amount += amountToAdd;
+    }
 }

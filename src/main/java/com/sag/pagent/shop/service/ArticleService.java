@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class ArticleService {
 
-    public List<Article> generateStoreSupply(Integer maxGeneratedSupplies) {
+    public static List<Article> generateStoreSupply(Integer maxGeneratedSupplies) {
         List<ArticleType> randomlyChosenArticleTypes = chooseArticleTypesRandomly();
 
         return randomlyChosenArticleTypes.stream()
@@ -21,7 +21,7 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
 
-    public List<Article> generateClientNeeds(Integer maxGeneratedNeeds) {
+    public static List<Article> generateClientNeeds(Integer maxGeneratedNeeds) {
         List<ArticleType> randomlyChosenArticleTypes = chooseArticleTypesRandomly();
 
         return randomlyChosenArticleTypes.stream()
@@ -32,7 +32,7 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
 
-    private List<ArticleType> chooseArticleTypesRandomly(){
+    private static List<ArticleType> chooseArticleTypesRandomly(){
         List<ArticleType> articleTypes = new ArrayList<>(Arrays.asList(ArticleType.values()));
         return articleTypes.stream()
                 .filter(articleType -> new Random().nextBoolean())

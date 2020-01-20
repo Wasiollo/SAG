@@ -2,11 +2,13 @@ package com.sag.pagent.agents;
 
 import com.sag.pagent.behaviors.FindAgentBehaviour;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
+import com.sag.pagent.behaviors.RegenerateShopSuppliesBehaviour;
 import com.sag.pagent.messages.ArticlesStatusQuery;
 import com.sag.pagent.messages.ArticlesStatusReply;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.messages.RegisterShopAgent;
 import com.sag.pagent.services.ServiceType;
+import com.sag.pagent.shop.domain.Article;
 import jade.core.AID;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -16,11 +18,15 @@ import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class ShopAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
     private AID brokerAgent;
+    private List<Article> shopArticles = new ArrayList<>();
 
     @Override
     protected void addServices(DFAgentDescription dfd) {
@@ -41,6 +47,7 @@ public class ShopAgent extends BasicAgent {
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
         addBehaviour(new FindAgentBehaviour(this, 1000, agentFoundListener, ServiceType.BROKER));
+        addBehaviour(new RegenerateShopSuppliesBehaviour(this, 10000, supplyGeneratedListener));
     }
 
     ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
@@ -57,6 +64,20 @@ public class ShopAgent extends BasicAgent {
     FindAgentBehaviour.AgentFoundListener agentFoundListener = agent -> {
         brokerAgent = agent;
         registerInBrokerAgent();
+    };
+
+    private RegenerateShopSuppliesBehaviour.SupplyGeneratedListener supplyGeneratedListener = supplies -> {
+        for (Article article : supplies) {
+            Optional<Article> shopArticle = shopArticles.stream()
+                    .filter(art -> art.getName().equals(article.getName()))
+                    .findAny();
+            if (shopArticle.isPresent()) {
+                shopArticle.get().addAmount(article.getAmount());
+                shopArticle.get().setPrice(article.getPrice());
+            } else {
+                shopArticles.add(article);
+            }
+        }
     };
 
     private void registerInBrokerAgent() {
