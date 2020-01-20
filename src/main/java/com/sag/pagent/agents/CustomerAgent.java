@@ -28,7 +28,7 @@ public class CustomerAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
     private List<Article> customerNeeds = new ArrayList<>();
     private List<Article> needsSentToPurchase = new ArrayList<>();
-    private static final Integer MAX_GENERATED_NEEDS = 100;
+    private static final Integer MAX_GENERATED_NEEDS = 10;
 
     @Override
     protected void addServices(DFAgentDescription dfd) {

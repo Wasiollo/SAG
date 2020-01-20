@@ -14,8 +14,9 @@ import static com.sag.pagent.messages.MessagesUtils.generateRandomStringByUUIDNo
 public class ArticlesStatusQuery implements Serializable {
     private final List<Article> articlesToBuy;
     private final String uid;
+    private final String purchaseUid;
 
-    public ArticlesStatusQuery(List<Article> articles) {
-        this(articles, generateRandomStringByUUIDNoDash());
+    public ArticlesStatusQuery(List<Article> articles, String purchaseUid) {
+        this(articles, generateRandomStringByUUIDNoDash(), purchaseUid);
     }
 }

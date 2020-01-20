@@ -128,6 +128,6 @@ public class ShopAgent extends BasicAgent {
                                 articlesToStatusReply.add(articleOffer);
                             }
                         }));
-        return new ArticlesStatusReply(articlesToStatusReply);
+        return new ArticlesStatusReply(articlesToStatusReply, articlesStatusQuery.getUid(), articlesStatusQuery.getPurchaseUid());
     }
 }

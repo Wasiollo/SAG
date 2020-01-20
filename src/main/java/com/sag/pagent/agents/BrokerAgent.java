@@ -76,7 +76,7 @@ public class BrokerAgent extends BasicAgent {
         try {
             PurchaseOrder purchaseOrder = (PurchaseOrder) msg.getContentObject();
             purchaseOrders.add(purchaseOrder);
-            sendArticlesStatusQuery(new ArticlesStatusQuery(purchaseOrder.getArticlesToBuy()));
+            sendArticlesStatusQuery(new ArticlesStatusQuery(purchaseOrder.getArticlesToBuy(), purchaseOrder.getUid()));
         } catch (UnreadableException e) {
             log.error("Exception while handling PurchaseOrder message", e);
         }
@@ -107,7 +107,7 @@ public class BrokerAgent extends BasicAgent {
         protected void repeatAction(ACLMessage msg) throws UnreadableException {
             logReceivedMessage(msg, ArticlesStatusReply.class);
             ArticlesStatusReply articlesStatusReply = (ArticlesStatusReply) msg.getContentObject();
-            updatePurchaseOrderStatus(articlesStatusReply);
+            updatePurchaseOrderStatus(msg, articlesStatusReply);
         }
 
         /**
@@ -121,9 +121,11 @@ public class BrokerAgent extends BasicAgent {
 
     /**
      * TODO: Update PurchaseOrder. Who have the lowest price etc.
+     *
      */
-    @SuppressWarnings("unused")
-    private void updatePurchaseOrderStatus(ArticlesStatusReply articlesStatusReply) {
+    private void updatePurchaseOrderStatus(ACLMessage msg, ArticlesStatusReply articlesStatusReply) {
         log.trace("updatePurchaseOrderStatus");
+//        msg.getSender() -> AID of SHOPAGENT with current response
+//        articlesStatusReply.getPurchaseUid() -> Uid of purchaseOrder to find and update :)
     }
 }
