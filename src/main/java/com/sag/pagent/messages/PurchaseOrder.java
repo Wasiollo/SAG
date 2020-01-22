@@ -14,28 +14,14 @@ import java.util.stream.Collectors;
 @Getter
 public class PurchaseOrder implements Serializable {
     private final String customerAgentId;
-    private final LinkedList<String> brokerAgentNameList;
     private final List<Article> articlesToBuy;
     private final String uid;
+    private final Double budget;
 
-    public PurchaseOrder(String customerAgentId, List<AID> brokerAgentIdList, List<Article> articlesToBuy) {
-        this(customerAgentId, brokerAgentIdList.stream()
-                        .map(AID::getName)
-                        .collect(Collectors.toCollection(LinkedList::new)),
+    public PurchaseOrder(String customerAgentId, List<Article> articlesToBuy, Double budget) {
+        this(customerAgentId,
                 articlesToBuy,
-                MessagesUtils.generateRandomStringByUUIDNoDash());
-    }
-
-    public List<AID> getBrokerAgentIdList() {
-        return brokerAgentNameList.stream()
-                .map(agentName -> new AID(agentName, AID.ISGUID))
-                .collect(Collectors.toList());
-    }
-
-    public List<String> getBrokerAgentLocalNameList() {
-        return brokerAgentNameList.stream()
-                .map(agentName -> new AID(agentName, AID.ISGUID))
-                .map(AID::getLocalName)
-                .collect(Collectors.toList());
+                MessagesUtils.generateRandomStringByUUIDNoDash(),
+                budget);
     }
 }

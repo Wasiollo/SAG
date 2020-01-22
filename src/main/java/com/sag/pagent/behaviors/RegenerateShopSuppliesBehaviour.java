@@ -11,7 +11,7 @@ import java.util.List;
 @Slf4j
 public class RegenerateShopSuppliesBehaviour extends MyTickerBehaviour {
     private SupplyGeneratedListener supplyGeneratedListener;
-    private static final Integer MAX_GENERATED_SUPPLIES = 30;
+    private static final Integer MAX_GENERATED_SUPPLIES = 300;
 
     public interface SupplyGeneratedListener extends Serializable {
         void supplyGenerated(List<Article> articles);

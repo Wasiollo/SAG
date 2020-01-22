@@ -3,7 +3,10 @@ package com.sag.pagent.shop.service;
 import com.sag.pagent.shop.domain.Article;
 import com.sag.pagent.shop.domain.ArticleType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -18,6 +21,7 @@ public class ArticleService {
                         .price(articleType.generatePrice())
                         .amount(ThreadLocalRandom.current().nextInt(0, maxGeneratedSupplies + 1))
                         .build())
+                .filter(article -> article.getAmount() > 0)
                 .collect(Collectors.toList());
     }
 
@@ -27,12 +31,12 @@ public class ArticleService {
         return randomlyChosenArticleTypes.stream()
                 .map(articleType -> Article.builder()
                         .name(articleType.getName())
-                        .amount(ThreadLocalRandom.current().nextInt(0, maxGeneratedNeeds + 1))
+                        .amount(ThreadLocalRandom.current().nextInt(1, maxGeneratedNeeds + 1))
                         .build())
                 .collect(Collectors.toList());
     }
 
-    private static List<ArticleType> chooseArticleTypesRandomly(){
+    private static List<ArticleType> chooseArticleTypesRandomly() {
         List<ArticleType> articleTypes = new ArrayList<>(Arrays.asList(ArticleType.values()));
         return articleTypes.stream()
                 .filter(articleType -> new Random().nextBoolean())

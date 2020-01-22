@@ -15,4 +15,8 @@ public class Article implements Serializable {
     public void addAmount(Integer amountToAdd){
         amount += amountToAdd;
     }
+
+    public void minusAmount(Integer amountToAdd){
+        amount -= amountToAdd;
+    }
 }
