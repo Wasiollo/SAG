@@ -1,4 +1,4 @@
-package com.sag.pagent.customer.messages;
+package com.sag.pagent.broker.messages;
 
 import com.sag.pagent.customer.order.OrderArticle;
 import lombok.Getter;

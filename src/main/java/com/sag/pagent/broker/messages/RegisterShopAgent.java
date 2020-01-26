@@ -1,4 +1,4 @@
-package com.sag.pagent.messages;
+package com.sag.pagent.broker.messages;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.sag.pagent.customer.order;
 
-import com.sag.pagent.customer.messages.PurchaseOrder;
+import com.sag.pagent.broker.messages.PurchaseOrder;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.services.ServiceUtils;

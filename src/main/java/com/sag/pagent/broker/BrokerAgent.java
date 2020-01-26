@@ -1,12 +1,13 @@
-package com.sag.pagent.agents;
+package com.sag.pagent.broker;
 
+import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.HandleManyResponds;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
-import com.sag.pagent.customer.messages.PurchaseOrder;
+import com.sag.pagent.broker.messages.PurchaseOrder;
+import com.sag.pagent.broker.messages.RegisterShopAgent;
 import com.sag.pagent.messages.ArticlesStatusQuery;
 import com.sag.pagent.messages.ArticlesStatusReply;
 import com.sag.pagent.messages.MessagesUtils;
-import com.sag.pagent.messages.RegisterShopAgent;
 import com.sag.pagent.services.ServiceType;
 import jade.core.AID;
 import jade.core.Agent;
@@ -80,6 +81,10 @@ public class BrokerAgent extends BasicAgent {
         try {
             PurchaseOrder purchaseOrder = (PurchaseOrder) msg.getContentObject();
             purchaseOrders.add(purchaseOrder);
+
+            ACLMessage reply = msg.createReply();
+            reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+            send(reply);
 //            sendArticlesStatusQuery(new ArticlesStatusQuery(purchaseOrder.getArticlesToBuy(), purchaseOrder.getUid()));
         } catch (UnreadableException e) {
             log.error("Exception while handling PurchaseOrder message", e);
@@ -125,7 +130,6 @@ public class BrokerAgent extends BasicAgent {
 
     /**
      * TODO: Update PurchaseOrder. Who have the lowest price etc.
-     *
      */
     private void updatePurchaseOrderStatus(ACLMessage msg, ArticlesStatusReply articlesStatusReply) {
         log.trace("updatePurchaseOrderStatus");
