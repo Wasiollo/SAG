@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Data
 @Builder
-public class OrderList {
+public class OrderList implements Serializable {
     @NonNull
     private List<OrderArticle> orderArticles;
     private double remainingBudget;
@@ -63,31 +64,4 @@ public class OrderList {
                         .build())
                 .collect(Collectors.toList());
     }
-
-//    private List<Article> chooseArticlesToPurchase() {
-//        List<Article> randomlyChosenArticles = customerNeeds.stream()
-//                .filter(n -> new Random().nextBoolean())
-//                .map(a -> Article.builder()
-//                        .name(a.getName())
-//                        .price(a.getPrice())
-//                        .amount(a.getAmount())
-//                        .build()
-//                )
-//                .collect(Collectors.toList());
-//
-//        randomlyChosenArticles.forEach(article -> article.setAmount(ThreadLocalRandom.current().nextInt(1, article.getAmount() + 1)));
-//
-//        removeChosenArticlesFromNeeds(randomlyChosenArticles);
-//
-//        return randomlyChosenArticles;
-//    }
-//
-//    private void removeChosenArticlesFromNeeds(List<Article> randomlyChosenArticles) {
-//        for (Article need : customerNeeds) {
-//            randomlyChosenArticles.stream().filter(a -> a.getName().equals(need.getName()))
-//                    .findAny()
-//                    .ifPresent(a -> need.minusAmount(a.getAmount()));
-//        }
-//        customerNeeds.removeIf(article -> article.getAmount() == 0);
-//    }
 }

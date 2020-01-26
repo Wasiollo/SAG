@@ -11,11 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class OrderListDispatcher {
+public class OrderListDispatcher implements Serializable {
     private Agent agent;
     private Map<AID, Boolean> isBrokerAlive = new HashMap<>();
     private Map<AID, Map<String, OrderList>> brokerToOrderListMap = new HashMap<>();
@@ -32,6 +33,7 @@ public class OrderListDispatcher {
     public List<ACLMessage> dispatch(OrderList orderList) {
         List<AID> aliveBrokerList = getAliveBrokerList();
         if (aliveBrokerList.isEmpty()) {
+            log.error("No brokerAgent is alive");
             return new LinkedList<>();
         }
 
@@ -78,5 +80,14 @@ public class OrderListDispatcher {
                 orderList.getOrderArticles(),
                 orderList.getRemainingBudget()
         );
+    }
+
+    public void killBroker(AID brokerAgent) {
+        log.debug("Kill broker: {}", brokerAgent.getLocalName());
+        isBrokerAlive.put(brokerAgent, false);
+    }
+
+    public OrderList getOrderList(AID brokerAgent, String conversationId) {
+        return brokerToOrderListMap.get(brokerAgent).get(conversationId);
     }
 }
