@@ -36,7 +36,7 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
 
-    private static List<ArticleType> chooseArticleTypesRandomly() {
+    public static List<ArticleType> chooseArticleTypesRandomly() {
         List<ArticleType> articleTypes = new ArrayList<>(Arrays.asList(ArticleType.values()));
         return articleTypes.stream()
                 .filter(articleType -> new Random().nextBoolean())

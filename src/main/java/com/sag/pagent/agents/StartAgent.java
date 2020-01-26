@@ -1,6 +1,7 @@
 package com.sag.pagent.agents;
 
 import com.sag.pagent.behaviors.CreateAgentBehaviour;
+import com.sag.pagent.customer.CustomerAgent;
 import jade.core.Agent;
 import lombok.extern.slf4j.Slf4j;
 

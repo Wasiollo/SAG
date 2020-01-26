@@ -2,7 +2,11 @@ package com.sag.pagent.agents;
 
 import com.sag.pagent.behaviors.HandleManyResponds;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
-import com.sag.pagent.messages.*;
+import com.sag.pagent.customer.messages.PurchaseOrder;
+import com.sag.pagent.messages.ArticlesStatusQuery;
+import com.sag.pagent.messages.ArticlesStatusReply;
+import com.sag.pagent.messages.MessagesUtils;
+import com.sag.pagent.messages.RegisterShopAgent;
 import com.sag.pagent.services.ServiceType;
 import jade.core.AID;
 import jade.core.Agent;
@@ -76,7 +80,7 @@ public class BrokerAgent extends BasicAgent {
         try {
             PurchaseOrder purchaseOrder = (PurchaseOrder) msg.getContentObject();
             purchaseOrders.add(purchaseOrder);
-            sendArticlesStatusQuery(new ArticlesStatusQuery(purchaseOrder.getArticlesToBuy(), purchaseOrder.getUid()));
+//            sendArticlesStatusQuery(new ArticlesStatusQuery(purchaseOrder.getArticlesToBuy(), purchaseOrder.getUid()));
         } catch (UnreadableException e) {
             log.error("Exception while handling PurchaseOrder message", e);
         }
