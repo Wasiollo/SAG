@@ -1,4 +1,4 @@
-package com.sag.pagent.behaviors;
+package com.sag.pagent.start.behaviour;
 
 import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;

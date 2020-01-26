@@ -18,4 +18,4 @@ W którym po zaznaczeniu Main-Container można dać Actions->Start New Agent i w
 ### automatyczne
 * Można dodać auto uruchamianie StartAgent wraz z startem całego programu.
   * Wejść w Run/Debug Configuration (obok zielonej strzalki do uruchamiania rozwinąć listę i wybrać Edit Configuration...)
-  * w polu Program arguments wpisać `-gui -agents StartAgent:com.sag.pagent.agents.StartAgent`
+  * w polu Program arguments wpisać `-gui -agents StartAgent:com.sag.pagent.start.StartAgent`

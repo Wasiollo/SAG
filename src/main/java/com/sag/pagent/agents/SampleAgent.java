@@ -1,4 +1,4 @@
-package com.sag.pagent;
+package com.sag.pagent.agents;
 
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
