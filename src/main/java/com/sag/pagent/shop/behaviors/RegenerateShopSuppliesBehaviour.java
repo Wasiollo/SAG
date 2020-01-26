@@ -1,5 +1,6 @@
-package com.sag.pagent.behaviors;
+package com.sag.pagent.shop.behaviors;
 
+import com.sag.pagent.behaviors.MyTickerBehaviour;
 import com.sag.pagent.shop.domain.Article;
 import com.sag.pagent.shop.service.ArticleService;
 import jade.core.Agent;

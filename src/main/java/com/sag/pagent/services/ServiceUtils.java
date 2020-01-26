@@ -21,10 +21,18 @@ public class ServiceUtils {
 
     public static AID findAgent(Agent agent, ServiceType type) {
         log.trace("findAgent, type: {} ", type);
+        return findAgentList(agent, type, 1).get(0);
+    }
+
+    public static List<AID> findAgentList(Agent agent, ServiceType type, int maxAgents) {
+        log.trace("findAgentList, type: {}, maxAgents: {}", type, maxAgents);
         List<AID> agentList = findAgentList(agent, type);
-        int size = agentList.size();
-        int index = ThreadLocalRandom.current().nextInt(size) % size;
-        return agentList.get(index);
+        List<AID> newList = new LinkedList<>();
+        for (int i = 0; i < maxAgents && !agentList.isEmpty(); i++) {
+            int randomIndex = ThreadLocalRandom.current().nextInt(agentList.size());
+            newList.add(agentList.remove(randomIndex));
+        }
+        return newList;
     }
 
     public static List<AID> findAgentList(Agent agent, ServiceType type) {
@@ -33,14 +41,13 @@ public class ServiceUtils {
         ServiceDescription sd = new ServiceDescription();
         sd.setType(type.getType());
         template.addServices(sd);
-        List<AID> agents = new LinkedList<>();
         try {
-            agents = Arrays.stream(DFService.search(agent, template))
+            return Arrays.stream(DFService.search(agent, template))
                     .map(DFAgentDescription::getName)
                     .collect(Collectors.toList());
         } catch (FIPAException fe) {
             log.error("FIPAException in findAgentList", fe);
         }
-        return agents;
+        return new LinkedList<>();
     }
 }

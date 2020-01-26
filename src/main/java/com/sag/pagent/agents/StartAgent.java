@@ -3,6 +3,7 @@ package com.sag.pagent.agents;
 import com.sag.pagent.behaviors.CreateAgentBehaviour;
 import com.sag.pagent.broker.BrokerAgent;
 import com.sag.pagent.customer.CustomerAgent;
+import com.sag.pagent.shop.ShopAgent;
 import jade.core.Agent;
 import lombok.extern.slf4j.Slf4j;
 
