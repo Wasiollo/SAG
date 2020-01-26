@@ -16,13 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Date;
 import java.util.List;
 
+import static com.sag.pagent.Constant.*;
+
 @Slf4j
 public class CustomerAgent extends BasicAgent {
-    private static final Integer MAX_GENERATED_NEEDS = 200;
-    private static final Double MAX_GENERATED_BUDGET = 2000d;
-    private static final Double MIN_GENERATED_BUDGET = 1000d;
-    private static final Long TIME_TO_RESPOND = 5L * 1000;
-
     private ReceiveMessagesBehaviour receiveMessages;
     private OrderListDispatcher orderListDispatcher;
     private ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> receiveMessages.replyNotUnderstood(msg);

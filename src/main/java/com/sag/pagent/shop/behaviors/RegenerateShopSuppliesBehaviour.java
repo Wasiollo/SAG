@@ -9,10 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.sag.pagent.Constant.MAX_GENERATED_SUPPLIES;
+
 @Slf4j
 public class RegenerateShopSuppliesBehaviour extends MyTickerBehaviour {
     private SupplyGeneratedListener supplyGeneratedListener;
-    private static final Integer MAX_GENERATED_SUPPLIES = 300;
 
     public interface SupplyGeneratedListener extends Serializable {
         void supplyGenerated(List<Article> articles);

@@ -23,10 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.sag.pagent.Constant.MAX_BROKERS_REGISTRATION_PER_SHOP;
+import static com.sag.pagent.Constant.REGENERATE_SUPPLIES_TIME;
+
 @Slf4j
 public class ShopAgent extends BasicAgent {
-    private static final int MAX_BROKERS = 3;
-
     private ReceiveMessagesBehaviour receiveMessages;
     private List<AID> brokerAgent;
     private List<Article> shopArticles = new ArrayList<>();
@@ -65,8 +66,8 @@ public class ShopAgent extends BasicAgent {
         super.setup();
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
-        addBehaviour(new FindAgentBehaviour(this, 1000, agentFoundListener, ServiceType.BROKER, MAX_BROKERS));
-        addBehaviour(new RegenerateShopSuppliesBehaviour(this, 10000, supplyGeneratedListener));
+        addBehaviour(new FindAgentBehaviour(this, 1000, agentFoundListener, ServiceType.BROKER, MAX_BROKERS_REGISTRATION_PER_SHOP));
+        addBehaviour(new RegenerateShopSuppliesBehaviour(this, REGENERATE_SUPPLIES_TIME, supplyGeneratedListener));
     }
 
     private RegenerateShopSuppliesBehaviour.SupplyGeneratedListener supplyGeneratedListener = supplies -> {
