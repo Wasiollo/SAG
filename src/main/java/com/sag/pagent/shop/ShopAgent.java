@@ -3,13 +3,13 @@ package com.sag.pagent.shop;
 import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.broker.messages.RegisterShopAgent;
-import com.sag.pagent.messages.ArticlesStatusQuery;
-import com.sag.pagent.messages.ArticlesStatusReply;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.services.ServiceType;
+import com.sag.pagent.shop.articles.Article;
 import com.sag.pagent.shop.behaviors.FindAgentBehaviour;
 import com.sag.pagent.shop.behaviors.RegenerateShopSuppliesBehaviour;
-import com.sag.pagent.shop.domain.Article;
+import com.sag.pagent.shop.messages.ArticlesStatusQuery;
+import com.sag.pagent.shop.messages.ArticlesStatusReply;
 import jade.core.AID;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -113,10 +113,16 @@ public class ShopAgent extends BasicAgent {
         }
     }
 
+    @SuppressWarnings("unused")
     private ArticlesStatusReply createArticlesStatusReply(ArticlesStatusQuery articlesStatusQuery) {
         log.trace("createArticlesStatusReply");
+        return new ArticlesStatusReply(shopArticles);
+    }
+
+    @SuppressWarnings("unused")
+    private List<Article> filterArticleList(List<Article> articlesToBuy) {
         List<Article> articlesToStatusReply = new ArrayList<>();
-        articlesStatusQuery.getArticlesToBuy().forEach(atb ->
+        articlesToBuy.forEach(atb ->
                 shopArticles.stream()
                         .filter(sa -> atb.getName().equals(sa.getName()))
                         .findAny()
@@ -132,6 +138,6 @@ public class ShopAgent extends BasicAgent {
                                 articlesToStatusReply.add(articleOffer);
                             }
                         }));
-        return new ArticlesStatusReply(articlesToStatusReply, articlesStatusQuery.getUid(), articlesStatusQuery.getPurchaseUid());
+        return articlesToStatusReply;
     }
 }

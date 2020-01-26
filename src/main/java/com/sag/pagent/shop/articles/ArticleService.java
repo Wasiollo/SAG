@@ -1,7 +1,4 @@
-package com.sag.pagent.shop.service;
-
-import com.sag.pagent.shop.domain.Article;
-import com.sag.pagent.shop.domain.ArticleType;
+package com.sag.pagent.shop.articles;
 
 import java.util.ArrayList;
 import java.util.Arrays;

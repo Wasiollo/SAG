@@ -73,7 +73,7 @@ public class CustomerAgent extends BasicAgent {
 
         @Override
         protected void onTimeout() {
-            log.debug("Timeout for respond: {} from {}", getConversationId(), getFirstReceiver().getLocalName());
+            super.onTimeout();
             orderListDispatcher.killBroker(getFirstReceiver());
             OrderList orderList = orderListDispatcher.getOrderList(getFirstReceiver(), getConversationId());
             sendPurchaseOrderToBrokerAgents(orderList);

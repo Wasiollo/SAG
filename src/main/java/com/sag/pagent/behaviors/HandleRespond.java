@@ -32,7 +32,7 @@ public abstract class HandleRespond implements Serializable {
     protected abstract void action(ACLMessage msg) throws UnreadableException;
 
     protected void onTimeout() {
-        log.debug("Timeout for respond: {}", sendMessage.getConversationId());
+        log.debug("Timeout for respond: {} from {}", getConversationId(), getFirstReceiver().getLocalName());
     }
 
     public void finished() {

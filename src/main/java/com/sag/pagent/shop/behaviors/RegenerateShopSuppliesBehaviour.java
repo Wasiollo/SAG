@@ -1,8 +1,8 @@
 package com.sag.pagent.shop.behaviors;
 
 import com.sag.pagent.behaviors.MyTickerBehaviour;
-import com.sag.pagent.shop.domain.Article;
-import com.sag.pagent.shop.service.ArticleService;
+import com.sag.pagent.shop.articles.Article;
+import com.sag.pagent.shop.articles.ArticleService;
 import jade.core.Agent;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,6 +1,6 @@
 package com.sag.pagent.customer.order;
 
-import com.sag.pagent.shop.domain.ArticleType;
+import com.sag.pagent.shop.articles.ArticleType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;

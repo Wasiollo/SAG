@@ -1,37 +1,33 @@
 package com.sag.pagent.broker;
 
 import com.sag.pagent.agents.BasicAgent;
-import com.sag.pagent.behaviors.HandleManyResponds;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
+import com.sag.pagent.broker.behaviours.QueryShopsBehaviour;
 import com.sag.pagent.broker.messages.PurchaseOrder;
 import com.sag.pagent.broker.messages.RegisterShopAgent;
-import com.sag.pagent.messages.ArticlesStatusQuery;
-import com.sag.pagent.messages.ArticlesStatusReply;
-import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.services.ServiceType;
+import com.sag.pagent.shop.messages.ArticlesStatusReply;
 import jade.core.AID;
-import jade.core.Agent;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.sag.pagent.Constant.QUERY_ARTICLES_TIME;
 
 @Slf4j
-public class BrokerAgent extends BasicAgent {
+public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.QueryShopsBehaviourListener {
     private ReceiveMessagesBehaviour receiveMessages;
-    private HashSet<AID> registeredShopAgents;
+    private QueryShopsBehaviour queryShopsBehaviour;
     private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
 
     public BrokerAgent() {
-        registeredShopAgents = new HashSet<>();
+        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
+        queryShopsBehaviour = new QueryShopsBehaviour(this, QUERY_ARTICLES_TIME, receiveMessages, this);
     }
 
     @Override
@@ -50,8 +46,8 @@ public class BrokerAgent extends BasicAgent {
     @Override
     protected void setup() {
         super.setup();
-        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
+        addBehaviour(queryShopsBehaviour);
     }
 
     private ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
@@ -71,7 +67,7 @@ public class BrokerAgent extends BasicAgent {
     private void handleRegisterShopAgent(ACLMessage msg) {
         try {
             RegisterShopAgent registerShopAgent = (RegisterShopAgent) msg.getContentObject();
-            registeredShopAgents.add(new AID(registerShopAgent.getShopAgentName(), AID.ISGUID));
+            queryShopsBehaviour.addShopAgent(new AID(registerShopAgent.getShopAgentName(), AID.ISGUID));
         } catch (UnreadableException e) {
             log.error("Exception while handling RegisterShopAgent message", e);
         }
@@ -85,54 +81,17 @@ public class BrokerAgent extends BasicAgent {
             ACLMessage reply = msg.createReply();
             reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
             send(reply);
-//            sendArticlesStatusQuery(new ArticlesStatusQuery(purchaseOrder.getArticlesToBuy(), purchaseOrder.getUid()));
         } catch (UnreadableException e) {
             log.error("Exception while handling PurchaseOrder message", e);
-        }
-    }
-
-    private void sendArticlesStatusQuery(@Nonnull ArticlesStatusQuery articlesStatusQuery) {
-        try {
-            List<String> agentNameList = registeredShopAgents.stream().map(AID::getLocalName).collect(Collectors.toList());
-            log.debug("send ArticlesStatusQuery to {}", agentNameList);
-            ACLMessage msg = MessagesUtils.createMessage(ACLMessage.PROPOSE);
-            for (AID agent : registeredShopAgents) {
-                msg.addReceiver(agent);
-            }
-            msg.setContentObject(articlesStatusQuery);
-            send(msg);
-            receiveMessages.registerRespond(new HandleArticlesStatusReplies(this, msg));
-        } catch (IOException ex) {
-            log.error("IOException in sendArticlesStatusQuery", ex);
-        }
-    }
-
-    private class HandleArticlesStatusReplies extends HandleManyResponds {
-        public HandleArticlesStatusReplies(Agent myAgent, ACLMessage sendMessage) {
-            super(myAgent, sendMessage);
-        }
-
-        @Override
-        protected void repeatAction(ACLMessage msg) throws UnreadableException {
-            logReceivedMessage(msg, ArticlesStatusReply.class);
-            ArticlesStatusReply articlesStatusReply = (ArticlesStatusReply) msg.getContentObject();
-            updatePurchaseOrderStatus(msg, articlesStatusReply);
-        }
-
-        /**
-         * TODO: Start talk with other BrokeAgent who should buy what
-         */
-        @Override
-        protected void afterFinished(ACLMessage msg) {
-            log.debug("afterFinished");
         }
     }
 
     /**
      * TODO: Update PurchaseOrder. Who have the lowest price etc.
      */
-    private void updatePurchaseOrderStatus(ACLMessage msg, ArticlesStatusReply articlesStatusReply) {
-        log.trace("updatePurchaseOrderStatus");
+    @Override
+    public void onArticlesStatusReply(ACLMessage msg, ArticlesStatusReply articlesStatusReply) throws UnreadableException {
+        log.debug("onArticlesStatusReply");
 //        msg.getSender() -> AID of SHOPAGENT with current response
 //        articlesStatusReply.getPurchaseUid() -> Uid of purchaseOrder to find and update :)
     }

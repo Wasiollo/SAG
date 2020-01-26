@@ -1,4 +1,4 @@
-package com.sag.pagent.shop.domain;
+package com.sag.pagent.shop.articles;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

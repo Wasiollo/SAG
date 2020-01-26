@@ -23,7 +23,7 @@ public abstract class HandleManyResponds extends HandleRespond {
         increaseRequestRespondsCounter(msg);
         if (isReceivedExpectedRequestResponds()) {
             finished();
-            afterFinished(msg);
+            afterFinished();
         }
     }
 
@@ -37,7 +37,9 @@ public abstract class HandleManyResponds extends HandleRespond {
         return expectedRequestResponds == requestRespondsCounter;
     }
 
-    protected abstract void afterFinished(ACLMessage msg);
+    protected void afterFinished() {
+        log.debug("AfterFinished");
+    }
 
     protected abstract void repeatAction(ACLMessage msg) throws UnreadableException;
 }

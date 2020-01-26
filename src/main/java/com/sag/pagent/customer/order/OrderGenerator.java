@@ -1,7 +1,7 @@
 package com.sag.pagent.customer.order;
 
-import com.sag.pagent.shop.domain.ArticleType;
-import com.sag.pagent.shop.service.ArticleService;
+import com.sag.pagent.shop.articles.ArticleService;
+import com.sag.pagent.shop.articles.ArticleType;
 import lombok.Data;
 
 import java.util.List;
