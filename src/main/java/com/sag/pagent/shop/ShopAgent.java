@@ -5,14 +5,14 @@ import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.broker.messages.RegisterShopAgent;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.services.ServiceType;
-import com.sag.pagent.shop.articles.Article;
 import com.sag.pagent.shop.articles.ArticleStorage;
 import com.sag.pagent.shop.behaviors.FindAgentBehaviour;
 import com.sag.pagent.shop.behaviors.RegenerateShopSuppliesBehaviour;
 import com.sag.pagent.shop.messages.ArticlesStatusQuery;
 import com.sag.pagent.shop.messages.ArticlesStatusReply;
+import com.sag.pagent.shop.messages.PurchaseArticle;
+import com.sag.pagent.shop.messages.PurchaseReport;
 import jade.core.AID;
-import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
@@ -20,9 +20,7 @@ import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.sag.pagent.Constant.MAX_BROKERS_REGISTRATION_PER_SHOP;
@@ -76,6 +74,9 @@ public class ShopAgent extends BasicAgent {
         if (content instanceof ArticlesStatusQuery) {
             logReceivedMessage(msg, ArticlesStatusQuery.class);
             handleArticlesStatusQuery(msg);
+        } else if (content instanceof PurchaseArticle) {
+            logReceivedMessage(msg, PurchaseArticle.class);
+            handlePurchaseArticle(msg);
         } else {
             receiveMessages.replyNotUnderstood(msg);
         }
@@ -99,14 +100,14 @@ public class ShopAgent extends BasicAgent {
         return brokerAgent.stream().map(AID::getLocalName).collect(Collectors.toList());
     }
 
-    private void handleArticlesStatusQuery(ACLMessage msg) {
+    private void handleArticlesStatusQuery(ACLMessage msg) throws UnreadableException {
         try {
             ACLMessage reply = msg.createReply();
             ArticlesStatusQuery articlesStatusQuery = (ArticlesStatusQuery) msg.getContentObject();
             ArticlesStatusReply articlesStatusReply = createArticlesStatusReply(articlesStatusQuery);
             reply.setContentObject(articlesStatusReply);
             send(reply);
-        } catch (UnreadableException | IOException e) {
+        } catch (IOException e) {
             log.error("Exception while handling ArticlesStatusQuery message", e);
         }
     }
@@ -115,5 +116,17 @@ public class ShopAgent extends BasicAgent {
     private ArticlesStatusReply createArticlesStatusReply(ArticlesStatusQuery articlesStatusQuery) {
         log.trace("createArticlesStatusReply");
         return new ArticlesStatusReply(articleStorage.getArticles());
+    }
+
+    private void handlePurchaseArticle(ACLMessage msg) throws UnreadableException {
+        try {
+            ACLMessage reply = msg.createReply();
+            PurchaseArticle purchaseArticle = (PurchaseArticle) msg.getContentObject();
+            PurchaseReport purchaseReport = articleStorage.purchase(purchaseArticle);
+            reply.setContentObject(purchaseReport);
+            send(reply);
+        } catch (IOException e) {
+            log.error("Exception while handling PurchaseArticle message", e);
+        }
     }
 }

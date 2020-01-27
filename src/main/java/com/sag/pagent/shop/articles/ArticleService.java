@@ -14,7 +14,7 @@ public class ArticleService {
 
         return randomlyChosenArticleTypes.stream()
                 .map(articleType -> Article.builder()
-                        .name(articleType.getName())
+                        .articleType(articleType)
                         .price(articleType.generatePrice())
                         .amount(ThreadLocalRandom.current().nextInt(0, maxGeneratedSupplies + 1))
                         .build())
@@ -27,7 +27,7 @@ public class ArticleService {
 
         return randomlyChosenArticleTypes.stream()
                 .map(articleType -> Article.builder()
-                        .name(articleType.getName())
+                        .articleType(articleType)
                         .amount(ThreadLocalRandom.current().nextInt(1, maxGeneratedNeeds + 1))
                         .build())
                 .collect(Collectors.toList());

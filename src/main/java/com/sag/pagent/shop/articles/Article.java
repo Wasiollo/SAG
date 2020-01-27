@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Data
 @Builder
 public class Article implements Serializable {
-    private String name;
+    private ArticleType articleType;
     private Double price;
     private Integer amount;
 
