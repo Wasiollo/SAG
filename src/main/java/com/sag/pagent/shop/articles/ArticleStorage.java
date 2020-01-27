@@ -3,7 +3,7 @@ package com.sag.pagent.shop.articles;
 import com.sag.pagent.shop.messages.PurchaseArticle;
 import com.sag.pagent.shop.messages.PurchaseReport;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +11,7 @@ import static java.lang.Math.min;
 
 
 public class ArticleStorage {
-    private Map<ArticleType, Article> articleMap = new HashMap<>();
+    private Map<ArticleType, Article> articleMap = new EnumMap<>(ArticleType.class);
 
     public void extend(List<Article> supplies) {
         for (Article supply : supplies) {
