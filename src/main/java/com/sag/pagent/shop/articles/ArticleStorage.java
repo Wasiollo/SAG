@@ -3,6 +3,7 @@ package com.sag.pagent.shop.articles;
 import com.sag.pagent.shop.messages.PurchaseArticle;
 import com.sag.pagent.shop.messages.PurchaseReport;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class ArticleStorage {
     }
 
     public List<Article> getArticles() {
-        return (List<Article>) articleMap.values();
+        return new ArrayList<>(articleMap.values());
     }
 
     public PurchaseReport purchase(PurchaseArticle purchaseArticle) {
