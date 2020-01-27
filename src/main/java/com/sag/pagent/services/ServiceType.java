@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum ServiceType {
     CUSTOMER("customer"),
     BROKER("broker"),
-    SHOP("shop");
+    SHOP("shop"),
+    MANAGER("manager");
 
     private final String type;
 }
