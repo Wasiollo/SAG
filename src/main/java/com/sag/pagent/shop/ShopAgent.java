@@ -6,6 +6,7 @@ import com.sag.pagent.broker.messages.RegisterShopAgent;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.shop.articles.Article;
+import com.sag.pagent.shop.articles.ArticleStorage;
 import com.sag.pagent.shop.behaviors.FindAgentBehaviour;
 import com.sag.pagent.shop.behaviors.RegenerateShopSuppliesBehaviour;
 import com.sag.pagent.shop.messages.ArticlesStatusQuery;
@@ -33,13 +34,14 @@ public class ShopAgent extends BasicAgent {
     private FindAgentBehaviour findAgentBehaviour;
     private RegenerateShopSuppliesBehaviour regenerateShopSuppliesBehaviour;
     private List<AID> brokerAgent;
-    private List<Article> shopArticles = new ArrayList<>();
+    private ArticleStorage articleStorage;
 
     public ShopAgent() {
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         findAgentBehaviour = new FindAgentBehaviour(this, 1000, agentFoundListener, ServiceType.BROKER,
                 MAX_BROKERS_REGISTRATION_PER_SHOP);
         regenerateShopSuppliesBehaviour = new RegenerateShopSuppliesBehaviour(this, REGENERATE_SUPPLIES_TIME, supplyGeneratedListener);
+        articleStorage = new ArticleStorage();
     }
 
     @Override
@@ -79,19 +81,7 @@ public class ShopAgent extends BasicAgent {
         }
     };
 
-    private RegenerateShopSuppliesBehaviour.SupplyGeneratedListener supplyGeneratedListener = supplies -> {
-        for (Article article : supplies) {
-            Optional<Article> shopArticle = shopArticles.stream()
-                    .filter(art -> art.getName().equals(article.getName()))
-                    .findAny();
-            if (shopArticle.isPresent()) {
-                shopArticle.get().addAmount(article.getAmount());
-                shopArticle.get().setPrice(article.getPrice());
-            } else {
-                shopArticles.add(article);
-            }
-        }
-    };
+    private RegenerateShopSuppliesBehaviour.SupplyGeneratedListener supplyGeneratedListener = supplies -> articleStorage.extend(supplies);
 
     private void registerInBrokerAgents() {
         log.debug("register itself in {} agents: {}", ServiceType.BROKER, getBrokerAgentNameList());
@@ -124,28 +114,6 @@ public class ShopAgent extends BasicAgent {
     @SuppressWarnings("unused")
     private ArticlesStatusReply createArticlesStatusReply(ArticlesStatusQuery articlesStatusQuery) {
         log.trace("createArticlesStatusReply");
-        return new ArticlesStatusReply(shopArticles);
-    }
-
-    @SuppressWarnings("unused")
-    private List<Article> filterArticleList(List<Article> articlesToBuy) {
-        List<Article> articlesToStatusReply = new ArrayList<>();
-        articlesToBuy.forEach(atb ->
-                shopArticles.stream()
-                        .filter(sa -> atb.getName().equals(sa.getName()))
-                        .findAny()
-                        .ifPresent(sa -> {
-                            if (sa.getAmount() < atb.getAmount()) {
-                                articlesToStatusReply.add(sa);
-                            } else {
-                                Article articleOffer = Article.builder()
-                                        .name(sa.getName())
-                                        .price(sa.getPrice())
-                                        .amount(atb.getAmount())
-                                        .build();
-                                articlesToStatusReply.add(articleOffer);
-                            }
-                        }));
-        return articlesToStatusReply;
+        return new ArticlesStatusReply(articleStorage.getArticles());
     }
 }
