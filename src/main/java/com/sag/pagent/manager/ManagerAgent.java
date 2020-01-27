@@ -2,7 +2,7 @@ package com.sag.pagent.manager;
 
 import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
-import com.sag.pagent.broker.messages.PurchaseOrder;
+import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.services.ServiceType;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;

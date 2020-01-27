@@ -3,7 +3,7 @@ package com.sag.pagent.broker;
 import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.broker.behaviours.QueryShopsBehaviour;
-import com.sag.pagent.broker.messages.PurchaseOrder;
+import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.broker.messages.RegisterShopAgent;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.shop.messages.ArticlesStatusReply;

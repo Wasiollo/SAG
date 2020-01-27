@@ -1,6 +1,6 @@
 package com.sag.pagent.customer.order;
 
-import com.sag.pagent.broker.messages.PurchaseOrder;
+import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.messages.MessagesUtils;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.services.ServiceUtils;
@@ -82,12 +82,12 @@ public class OrderListDispatcher implements Serializable {
         );
     }
 
-    public void killBroker(AID brokerAgent) {
-        log.debug("Kill broker: {}", brokerAgent.getLocalName());
-        isManagerAlive.put(brokerAgent, false);
+    public void killManager(AID managerAgent) {
+        log.debug("Kill manager: {}", managerAgent.getLocalName());
+        isManagerAlive.put(managerAgent, false);
     }
 
-    public OrderList getOrderList(AID brokerAgent, String conversationId) {
-        return managerToOrderListMap.get(brokerAgent).get(conversationId);
+    public OrderList getOrderList(AID managerAgent, String conversationId) {
+        return managerToOrderListMap.get(managerAgent).get(conversationId);
     }
 }
