@@ -43,6 +43,9 @@ public class ReceiveMessagesBehaviour extends CyclicBehaviour {
             } else {
                 receiveMessageListener.receivedNewMessage(msg);
             }
+        } catch (UnreadableException ue){
+            log.error("Message could not be parsed");
+            replyNotUnderstood(msg);
         } catch (Exception ex) {
             log.error("Exception occurred parsing Message");
         }
