@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class FindAgentBehaviour extends MyTickerBehaviour {
-    private AgentFoundListener agentFoundListener;
     private final ServiceType serviceType;
     private final int maxAgents;
+    private AgentFoundListener agentFoundListener;
 
     public FindAgentBehaviour(Agent a, long timeout, AgentFoundListener agentFoundListener, ServiceType serviceType, int maxAgents) {
         super(a, timeout);

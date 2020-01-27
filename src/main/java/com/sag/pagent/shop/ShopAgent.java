@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.sag.pagent.Constant.MAX_BROKERS_REGISTRATION_PER_SHOP;
 import static com.sag.pagent.Constant.REGENERATE_SUPPLIES_TIME;
@@ -29,8 +30,17 @@ import static com.sag.pagent.Constant.REGENERATE_SUPPLIES_TIME;
 @Slf4j
 public class ShopAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
+    private FindAgentBehaviour findAgentBehaviour;
+    private RegenerateShopSuppliesBehaviour regenerateShopSuppliesBehaviour;
     private List<AID> brokerAgent;
     private List<Article> shopArticles = new ArrayList<>();
+
+    public ShopAgent() {
+        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
+        findAgentBehaviour = new FindAgentBehaviour(this, 1000, agentFoundListener, ServiceType.BROKER,
+                MAX_BROKERS_REGISTRATION_PER_SHOP);
+        regenerateShopSuppliesBehaviour = new RegenerateShopSuppliesBehaviour(this, REGENERATE_SUPPLIES_TIME, supplyGeneratedListener);
+    }
 
     @Override
     protected void addServices(DFAgentDescription dfd) {
@@ -45,7 +55,15 @@ public class ShopAgent extends BasicAgent {
         return sd;
     }
 
-    FindAgentBehaviour.AgentFoundListener agentFoundListener = agentList -> {
+    @Override
+    protected void setup() {
+        super.setup();
+        addBehaviour(receiveMessages);
+        addBehaviour(findAgentBehaviour);
+        addBehaviour(regenerateShopSuppliesBehaviour);
+    }
+
+    private FindAgentBehaviour.AgentFoundListener agentFoundListener = agentList -> {
         brokerAgent = agentList;
         registerInBrokerAgents();
     };
@@ -60,15 +78,6 @@ public class ShopAgent extends BasicAgent {
             receiveMessages.replyNotUnderstood(msg);
         }
     };
-
-    @Override
-    protected void setup() {
-        super.setup();
-        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
-        addBehaviour(receiveMessages);
-        addBehaviour(new FindAgentBehaviour(this, 1000, agentFoundListener, ServiceType.BROKER, MAX_BROKERS_REGISTRATION_PER_SHOP));
-        addBehaviour(new RegenerateShopSuppliesBehaviour(this, REGENERATE_SUPPLIES_TIME, supplyGeneratedListener));
-    }
 
     private RegenerateShopSuppliesBehaviour.SupplyGeneratedListener supplyGeneratedListener = supplies -> {
         for (Article article : supplies) {
@@ -85,20 +94,19 @@ public class ShopAgent extends BasicAgent {
     };
 
     private void registerInBrokerAgents() {
-        addBehaviour(new OneShotBehaviour() {
-            @Override
-            public void action() {
-                log.debug("register itself in {} agents", ServiceType.BROKER);
-                ACLMessage msg = MessagesUtils.createMessage(ACLMessage.INFORM);
-                brokerAgent.forEach(msg::addReceiver);
-                try {
-                    msg.setContentObject(new RegisterShopAgent(myAgent.getName()));
-                    send(msg);
-                } catch (IOException ex) {
-                    log.error("IOException in registerInBrokerAgent", ex);
-                }
-            }
-        });
+        log.debug("register itself in {} agents: {}", ServiceType.BROKER, getBrokerAgentNameList());
+        ACLMessage msg = MessagesUtils.createMessage(ACLMessage.INFORM);
+        brokerAgent.forEach(msg::addReceiver);
+        try {
+            msg.setContentObject(new RegisterShopAgent(getName()));
+            send(msg);
+        } catch (IOException ex) {
+            log.error("IOException in registerInBrokerAgent", ex);
+        }
+    }
+
+    private List<String> getBrokerAgentNameList() {
+        return brokerAgent.stream().map(AID::getLocalName).collect(Collectors.toList());
     }
 
     private void handleArticlesStatusQuery(ACLMessage msg) {

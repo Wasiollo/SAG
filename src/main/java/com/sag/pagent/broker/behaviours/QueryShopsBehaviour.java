@@ -25,7 +25,6 @@ public class QueryShopsBehaviour extends MyTickerBehaviour {
     private QueryShopsBehaviourListener listener;
     private HashSet<AID> shopAgents;
 
-
     public QueryShopsBehaviour(Agent a, long timeout, ReceiveMessagesBehaviour receiveMessages, QueryShopsBehaviourListener listener) {
         super(a, timeout);
         this.receiveMessages = receiveMessages;
@@ -61,7 +60,7 @@ public class QueryShopsBehaviour extends MyTickerBehaviour {
     }
 
     private class HandleArticlesStatusReplies extends HandleManyResponds {
-        public HandleArticlesStatusReplies(Agent myAgent, ACLMessage sendMessage) {
+        HandleArticlesStatusReplies(Agent myAgent, ACLMessage sendMessage) {
             super(myAgent, sendMessage);
         }
 
