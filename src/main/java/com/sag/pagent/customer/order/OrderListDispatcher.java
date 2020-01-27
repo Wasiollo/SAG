@@ -18,33 +18,33 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OrderListDispatcher implements Serializable {
     private Agent agent;
-    private Map<AID, Boolean> isBrokerAlive = new HashMap<>();
-    private Map<AID, Map<String, OrderList>> brokerToOrderListMap = new HashMap<>();
+    private Map<AID, Boolean> isManagerAlive = new HashMap<>();
+    private Map<AID, Map<String, OrderList>> managerToOrderListMap = new HashMap<>();
 
     public OrderListDispatcher(Agent agent) {
         this.agent = agent;
-        List<AID> brokerAgents = ServiceUtils.findAgentList(agent, ServiceType.BROKER);
-        for (AID broker : brokerAgents) {
-            isBrokerAlive.put(broker, true);
-            brokerToOrderListMap.put(broker, new HashMap<>());
+        List<AID> managerAgents = ServiceUtils.findAgentList(agent, ServiceType.MANAGER);
+        for (AID manager : managerAgents) {
+            isManagerAlive.put(manager, true);
+            managerToOrderListMap.put(manager, new HashMap<>());
         }
     }
 
     public List<ACLMessage> dispatch(OrderList orderList) {
-        List<AID> aliveBrokerList = getAliveBrokerList();
-        if (aliveBrokerList.isEmpty()) {
-            log.error("No brokerAgent is alive");
+        List<AID> aliveManagerList = getAliveManagerList();
+        if (aliveManagerList.isEmpty()) {
+            log.error("No managerAgent is alive");
             return new LinkedList<>();
         }
 
-        List<OrderList> splitOrderList = orderList.splitOrder(aliveBrokerList.size());
+        List<OrderList> splitOrderList = orderList.splitOrder(aliveManagerList.size());
 
-        Iterator<AID> aliveBrokerIt = aliveBrokerList.iterator();
+        Iterator<AID> aliveManagerIt = aliveManagerList.iterator();
         Iterator<OrderList> splitOrderIt = splitOrderList.iterator();
 
         List<ACLMessage> aclMessageList = new LinkedList<>();
-        while (aliveBrokerIt.hasNext()) {
-            ACLMessage msg = prepareMessage(aliveBrokerIt.next(), splitOrderIt.next());
+        while (aliveManagerIt.hasNext()) {
+            ACLMessage msg = prepareMessage(aliveManagerIt.next(), splitOrderIt.next());
             if (msg == null) continue;
             aclMessageList.add(msg);
         }
@@ -52,25 +52,25 @@ public class OrderListDispatcher implements Serializable {
         return aclMessageList;
     }
 
-    private List<AID> getAliveBrokerList() {
-        return isBrokerAlive.entrySet().stream()
+    private List<AID> getAliveManagerList() {
+        return isManagerAlive.entrySet().stream()
                 .filter(entry -> Boolean.TRUE.equals(entry.getValue()))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
 
     @Nullable
-    private ACLMessage prepareMessage(AID broker, OrderList order) {
+    private ACLMessage prepareMessage(AID manager, OrderList order) {
         ACLMessage msg = MessagesUtils.createMessage(ACLMessage.PROPOSE);
-        msg.addReceiver(broker);
+        msg.addReceiver(manager);
         try {
             msg.setContentObject(createPurchaseOrder(order));
         } catch (IOException e) {
             log.error("Error on setContentObject", e);
             return null;
         }
-        brokerToOrderListMap.get(broker).put(msg.getConversationId(), order);
-        log.debug("Purchase Order prepared for broker: {}", broker.getLocalName());
+        managerToOrderListMap.get(manager).put(msg.getConversationId(), order);
+        log.debug("Purchase Order prepared for manager: {}", manager.getLocalName());
         return msg;
     }
 
@@ -84,10 +84,10 @@ public class OrderListDispatcher implements Serializable {
 
     public void killBroker(AID brokerAgent) {
         log.debug("Kill broker: {}", brokerAgent.getLocalName());
-        isBrokerAlive.put(brokerAgent, false);
+        isManagerAlive.put(brokerAgent, false);
     }
 
     public OrderList getOrderList(AID brokerAgent, String conversationId) {
-        return brokerToOrderListMap.get(brokerAgent).get(conversationId);
+        return managerToOrderListMap.get(brokerAgent).get(conversationId);
     }
 }
