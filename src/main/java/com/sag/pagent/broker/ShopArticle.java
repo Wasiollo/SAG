@@ -9,8 +9,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class ShopArticle {
-    private final Article article;
     private final AID shopAgent;
+    private final Article article;
+
+    public ShopArticle(ShopArticle shopArticle, int amount) {
+        this(
+                shopArticle.getShopAgent(),
+                new Article(shopArticle.getArticle(), amount)
+        );
+    }
 
     public ArticleType getArticleType() {
         return article.getArticleType();
@@ -18,5 +25,22 @@ public class ShopArticle {
 
     public Double getPrice() {
         return article.getPrice();
+    }
+
+    public Integer getAmount() {
+        return article.getAmount();
+    }
+
+    public int howMachCanBuy(double budget) {
+        return (int) (budget / getPrice());
+    }
+
+    public double buy(double budget) {
+        int canBuy = howMachCanBuy(budget);
+        return budget - (getPrice() * canBuy);
+    }
+
+    public boolean empty() {
+        return getAmount() == 0;
     }
 }

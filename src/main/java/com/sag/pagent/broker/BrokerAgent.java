@@ -3,8 +3,8 @@ package com.sag.pagent.broker;
 import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.broker.behaviours.QueryShopsBehaviour;
-import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.broker.messages.RegisterShopAgent;
+import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.shop.messages.ArticlesStatusReply;
 import jade.core.AID;
@@ -24,6 +24,7 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
     private ReceiveMessagesBehaviour receiveMessages;
     private QueryShopsBehaviour queryShopsBehaviour;
     private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
+    private ArticleOrganizer articleOrganizer = new ArticleOrganizer();
 
     public BrokerAgent() {
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
@@ -86,13 +87,9 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
         }
     }
 
-    /**
-     * TODO: Update PurchaseOrder. Who have the lowest price etc.
-     */
     @Override
-    public void onArticlesStatusReply(ACLMessage msg, ArticlesStatusReply articlesStatusReply) throws UnreadableException {
+    public void onArticlesStatusReply(ACLMessage msg, ArticlesStatusReply articlesStatusReply) {
         log.debug("onArticlesStatusReply");
-//        msg.getSender() -> AID of SHOPAGENT with current response
-//        articlesStatusReply.getPurchaseUid() -> Uid of purchaseOrder to find and update :)
+        articleOrganizer.setArticleList(msg.getSender(), articlesStatusReply.getArticlesToSell());
     }
 }
