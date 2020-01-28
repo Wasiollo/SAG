@@ -5,9 +5,13 @@ import com.sag.pagent.behaviors.HandleRespond;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.customer.order.OrderArticle;
+import com.sag.pagent.manager.hierarchy.BrokerBudgetQuantizationHierarchy;
+import com.sag.pagent.manager.hierarchy.BrokerHierarchy;
+import com.sag.pagent.manager.hierarchy.BrokerSamplingHierarchy;
 import com.sag.pagent.manager.messages.BuyProductsResponse;
 import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.services.ServiceType;
+import com.sag.pagent.services.ServiceUtils;
 import com.sag.pagent.shop.articles.ArticleType;
 import jade.core.AID;
 import jade.core.Agent;
@@ -20,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 import static com.sag.pagent.Constant.BUY_PRODUCTS_TIME_TO_RESPOND;
+import static com.sag.pagent.Constant.SAMPLING_ALGORITHM;
 
 @Slf4j
 public class ManagerAgent extends BasicAgent {
@@ -27,6 +32,7 @@ public class ManagerAgent extends BasicAgent {
     private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
     private Double budget = 0d;
     private Map<ArticleType, Integer> articlesToBuy = new EnumMap<>(ArticleType.class);
+    private BrokerHierarchy brokerHierarchy;
 
     @Override
     protected void addServices(DFAgentDescription dfd) {
@@ -46,6 +52,12 @@ public class ManagerAgent extends BasicAgent {
         super.setup();
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
+        if (SAMPLING_ALGORITHM) {
+            brokerHierarchy = new BrokerSamplingHierarchy();
+        } else {
+            brokerHierarchy = new BrokerBudgetQuantizationHierarchy();
+        }
+        brokerHierarchy.initializeHierarchy(ServiceUtils.findAgentList(this, ServiceType.BROKER));
     }
 
     private ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
@@ -97,7 +109,7 @@ public class ManagerAgent extends BasicAgent {
             if (content instanceof BuyProductsResponse) {
                 BuyProductsResponse response = (BuyProductsResponse) content;
                 updateHierarchy(msg.getSender(), response);
-                sendBuyProductsToBrokerAgents(msg.getSender(), response.getArticleType());
+                sendBuyProductsToBrokerAgents(msg.getSender(), response.getRequest().getArticle());
             }
             finished();
         }
@@ -110,7 +122,7 @@ public class ManagerAgent extends BasicAgent {
     }
 
     private void updateHierarchy(AID sender, BuyProductsResponse response) {
-//        TODO :)
+        brokerHierarchy.updateHierarchy(sender, response);
     }
 
     private void sendBuyProductsToBrokerAgents(AID broker, ArticleType articleType) {

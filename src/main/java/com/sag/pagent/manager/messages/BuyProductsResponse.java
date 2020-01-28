@@ -1,11 +1,12 @@
 package com.sag.pagent.manager.messages;
 
-import com.sag.pagent.shop.articles.ArticleType;
+import com.sag.pagent.broker.messages.BuyProductsRequest;
 import lombok.Data;
 
 @Data
 public class BuyProductsResponse {
-    private final ArticleType articleType;
-    private final Integer amount;
+    private final Integer boughtAmount;
     private final Double usedMoney;
+    private final BuyProductsRequest request;
+
 }
