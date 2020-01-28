@@ -1,11 +1,13 @@
 package com.sag.pagent.manager;
 
 import com.sag.pagent.agents.BasicAgent;
+import com.sag.pagent.behaviors.HandleRespond;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.customer.order.OrderArticle;
 import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.shop.articles.ArticleType;
+import jade.core.Agent;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
@@ -40,7 +42,6 @@ public class ManagerAgent extends BasicAgent {
     @Override
     protected void setup() {
         super.setup();
-
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
     }
@@ -80,5 +81,24 @@ public class ManagerAgent extends BasicAgent {
                 log.debug("Article didn't exist, amount set to: " + article.getAmount());
             }
         });
+    }
+
+    public class BuyProductsRespond extends HandleRespond {
+        public BuyProductsRespond(Agent agent, ACLMessage sendMessage) {
+            super(agent, sendMessage);
+        }
+
+        @Override
+        protected void action(ACLMessage msg) throws UnreadableException {
+            log.debug("BuyProductRespond from: {}", msg.getSender().getLocalName());
+//           TODO :)
+            finished();
+        }
+
+        @Override
+        protected void onTimeout() {
+            super.onTimeout();
+//            TODO :)
+        }
     }
 }

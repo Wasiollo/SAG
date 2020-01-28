@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor
 @Getter
-public class BuyProducts implements Serializable {
+public class BuyProductsRequest implements Serializable {
     private final ArticleType article;
     private final Integer amount;
     private final Double budget;
