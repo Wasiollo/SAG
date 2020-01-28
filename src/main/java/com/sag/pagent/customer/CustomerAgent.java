@@ -45,13 +45,13 @@ public class CustomerAgent extends BasicAgent {
 
         OrderList orderList = new OrderGenerator(MAX_GENERATED_NEEDS, MIN_GENERATED_BUDGET, MAX_GENERATED_BUDGET).generate();
         orderListDispatcher = new OrderListDispatcher(this);
-        sendPurchaseOrderToBrokerAgents(orderList);
+        sendPurchaseOrderToManagerAgents(orderList);
     }
 
-    private void sendPurchaseOrderToBrokerAgents(OrderList orderList) {
+    private void sendPurchaseOrderToManagerAgents(OrderList orderList) {
         List<ACLMessage> messageList = orderListDispatcher.dispatch(orderList);
         Date respondDate = new Date();
-        respondDate.setTime(respondDate.getTime() + TIME_TO_RESPOND);
+        respondDate.setTime(respondDate.getTime() + PURCHASE_ORDER_TIME_TO_RESPOND);
         for (ACLMessage message : messageList) {
             message.setReplyByDate(respondDate);
             send(message);
@@ -76,7 +76,7 @@ public class CustomerAgent extends BasicAgent {
             super.onTimeout();
             orderListDispatcher.killManager(getFirstReceiver());
             OrderList orderList = orderListDispatcher.getOrderList(getFirstReceiver(), getConversationId());
-            sendPurchaseOrderToBrokerAgents(orderList);
+            sendPurchaseOrderToManagerAgents(orderList);
         }
     }
 }

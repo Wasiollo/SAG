@@ -3,10 +3,13 @@ package com.sag.pagent.manager;
 import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.HandleRespond;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
+import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.customer.order.OrderArticle;
+import com.sag.pagent.manager.messages.BuyProductsResponse;
 import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.shop.articles.ArticleType;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -14,10 +17,9 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.sag.pagent.Constant.BUY_PRODUCTS_TIME_TO_RESPOND;
 
 @Slf4j
 public class ManagerAgent extends BasicAgent {
@@ -91,7 +93,12 @@ public class ManagerAgent extends BasicAgent {
         @Override
         protected void action(ACLMessage msg) throws UnreadableException {
             log.debug("BuyProductRespond from: {}", msg.getSender().getLocalName());
-//           TODO :)
+            Object content = msg.getContentObject();
+            if (content instanceof BuyProductsResponse) {
+                BuyProductsResponse response = (BuyProductsResponse) content;
+                updateHierarchy(msg.getSender(), response);
+                sendBuyProductsToBrokerAgents(msg.getSender(), response.getArticleType());
+            }
             finished();
         }
 
@@ -100,5 +107,27 @@ public class ManagerAgent extends BasicAgent {
             super.onTimeout();
 //            TODO :)
         }
+    }
+
+    private void updateHierarchy(AID sender, BuyProductsResponse response) {
+//        TODO :)
+    }
+
+    private void sendBuyProductsToBrokerAgents(AID broker, ArticleType articleType) {
+        ACLMessage message = BuyProductsDispatcher.prepareBuyProductsMessage(
+                broker,
+                prepareProductToBuyByBroker(broker, articleType)
+        );
+        Date respondDate = new Date();
+        respondDate.setTime(respondDate.getTime() + BUY_PRODUCTS_TIME_TO_RESPOND);
+        message.setReplyByDate(respondDate);
+        send(message);
+        receiveMessages.registerRespond(new BuyProductsRespond(this, message));
+
+    }
+
+    private BuyProductsRequest prepareProductToBuyByBroker(AID broker, ArticleType articleType) {
+//        TODO :)
+        return null;
     }
 }
