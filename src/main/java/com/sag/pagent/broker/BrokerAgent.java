@@ -2,6 +2,7 @@ package com.sag.pagent.broker;
 
 import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
+import com.sag.pagent.broker.behaviours.BuyProducts;
 import com.sag.pagent.broker.behaviours.QueryShopsBehaviour;
 import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.broker.messages.RegisterShopAgent;
@@ -76,10 +77,9 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
         try {
             BuyProductsRequest buyProductsRequest = (BuyProductsRequest) msg.getContentObject();
             List<ShopArticle> shopArticleList = articleOrganizer.getLowestPriceShopArticleList(buyProductsRequest);
-
-//            ACLMessage reply = msg.createReply();
-//            reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
-//            send(reply);
+            BuyProducts buyProducts = new BuyProducts(this, msg, buyProductsRequest, shopArticleList);
+            buyProducts.getMessages().forEach(this::send);
+            buyProducts.getHandleOneRespondList().forEach(receiveMessages::registerRespond);
         } catch (UnreadableException e) {
             log.error("Exception while handling PurchaseOrder message", e);
         }
