@@ -8,8 +8,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Math.min;
-
 
 public class ArticleStorage {
     private Map<ArticleType, Article> articleMap = new EnumMap<>(ArticleType.class);
@@ -30,13 +28,25 @@ public class ArticleStorage {
     }
 
     public PurchaseReport purchase(PurchaseArticle purchaseArticle) {
-        Article article = articleMap.get(purchaseArticle.getArticleType());
+        return purchase(
+                purchaseArticle.getArticleType(),
+                purchaseArticle.getAmount(),
+                purchaseArticle.getBudget()
+        );
+    }
+
+    public PurchaseReport purchase(ArticleType articleType, int amount, double budget) {
+        Article article = articleMap.get(articleType);
         if (article == null) {
-            return new PurchaseReport(purchaseArticle.getArticleType(), 0, 0d);
+            return new PurchaseReport(articleType, 0, 0d);
         }
-        int bought = min(article.getAmount(), purchaseArticle.getAmount());
-        double price = article.getPrice() * bought;
-        article.minusAmount(bought);
+
+        int bought = article.buy(amount, budget);
+        double price = bought * article.getPrice();
+
+        if (article.getAmount() == 0) {
+            articleMap.remove(article.getArticleType());
+        }
 
         return new PurchaseReport(article.getArticleType(), bought, price);
     }

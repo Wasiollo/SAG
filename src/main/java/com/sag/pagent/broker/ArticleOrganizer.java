@@ -8,19 +8,13 @@ import jade.core.AID;
 import java.io.Serializable;
 import java.util.*;
 
-import static java.lang.Math.min;
-
 public class ArticleOrganizer implements Serializable {
     private Map<ArticleType, Queue<ShopArticle>> shopArticleQueueMap = new EnumMap<>(ArticleType.class);
     private Map<ArticleType, Map<AID, ShopArticle>> shopArticleMapMap = new EnumMap<>(ArticleType.class);
 
-    private static final Comparator<ShopArticle> comparatorArticle = Comparator
-            .comparing(ShopArticle::getPrice)
-            .thenComparing(ShopArticle::getShopAgent);
-
     public void setArticleList(AID shopAgent, List<Article> articleList) {
         for (Article article : articleList) {
-            shopArticleQueueMap.computeIfAbsent(article.getArticleType(), k -> new PriorityQueue<>(comparatorArticle));
+            shopArticleQueueMap.computeIfAbsent(article.getArticleType(), k -> new PriorityQueue<>());
             shopArticleMapMap.computeIfAbsent(article.getArticleType(), k -> new HashMap<>());
             setArticle(shopAgent, article);
         }
@@ -55,14 +49,12 @@ public class ArticleOrganizer implements Serializable {
         List<ShopArticle> shopArticleList = new LinkedList<>();
         while (!shopArticleQueue.isEmpty() && amount > 0 && budget > 0) {
             ShopArticle shopArticle = shopArticleQueue.peek();
-            int canBuy = shopArticle.howMachCanBuy(budget);
-            if (canBuy == 0) break;
-            int toBuy = min(amount, canBuy);
-            shopArticle.buy(toBuy);
-            amount -= toBuy;
-            budget -= toBuy * shopArticle.getPrice();
-            shopArticleList.add(new ShopArticle(shopArticle, toBuy));
-            if (shopArticle.empty()) {
+            int bought = shopArticle.getArticle().buy(amount, budget);
+            if (bought == 0) break;
+            amount -= bought;
+            budget -= bought * shopArticle.getPrice();
+            shopArticleList.add(new ShopArticle(shopArticle, bought));
+            if (shopArticle.getAmount() == 0) {
                 shopArticleMap.remove(shopArticle.getShopAgent());
                 shopArticleQueue.remove();
             }

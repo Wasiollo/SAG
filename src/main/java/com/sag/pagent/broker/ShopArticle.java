@@ -3,18 +3,20 @@ package com.sag.pagent.broker;
 import com.sag.pagent.shop.articles.Article;
 import com.sag.pagent.shop.articles.ArticleType;
 import jade.core.AID;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-
-import static java.lang.Math.min;
+import java.util.Comparator;
 
 @RequiredArgsConstructor
 @Getter
 @ToString
-public class ShopArticle implements Serializable {
+@EqualsAndHashCode
+public class ShopArticle implements Serializable, Comparable<ShopArticle> {
     private final AID shopAgent;
     private final Article article;
 
@@ -37,15 +39,12 @@ public class ShopArticle implements Serializable {
         return article.getAmount();
     }
 
-    public int howMachCanBuy(double budget) {
-        return min((int) (budget / getPrice()), getAmount());
-    }
+    public static final Comparator<ShopArticle> COMPARATOR = Comparator
+            .comparing(ShopArticle::getArticle)
+            .thenComparing(o -> o.getShopAgent().getName());
 
-    public void buy(int buy) {
-        article.minusAmount(min(buy, getAmount()));
-    }
-
-    public boolean empty() {
-        return getAmount() == 0;
+    @Override
+    public int compareTo(@NotNull ShopArticle o) {
+        return COMPARATOR.compare(this, o);
     }
 }

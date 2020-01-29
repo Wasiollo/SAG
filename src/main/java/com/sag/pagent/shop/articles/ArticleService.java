@@ -22,17 +22,6 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
 
-    public static List<Article> generateClientNeeds(Integer maxGeneratedNeeds) {
-        List<ArticleType> randomlyChosenArticleTypes = chooseArticleTypesRandomly();
-
-        return randomlyChosenArticleTypes.stream()
-                .map(articleType -> Article.builder()
-                        .articleType(articleType)
-                        .amount(ThreadLocalRandom.current().nextInt(1, maxGeneratedNeeds + 1))
-                        .build())
-                .collect(Collectors.toList());
-    }
-
     public static List<ArticleType> chooseArticleTypesRandomly() {
         List<ArticleType> articleTypes = new ArrayList<>(Arrays.asList(ArticleType.values()));
         return articleTypes.stream()
