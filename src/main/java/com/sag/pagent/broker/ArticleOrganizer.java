@@ -55,9 +55,10 @@ public class ArticleOrganizer implements Serializable {
             ShopArticle shopArticle = shopArticleQueue.peek();
             int canBuy = shopArticle.howMachCanBuy(budget);
             if (canBuy == 0) break;
-            amount -= canBuy;
-            budget -= shopArticle.buy(budget);
-            shopArticleList.add(new ShopArticle(shopArticle, canBuy));
+            int toBuy = amount - canBuy < 0 ? amount : canBuy;
+            amount -= toBuy;
+            budget -= shopArticle.buy(toBuy, budget);
+            shopArticleList.add(new ShopArticle(shopArticle, toBuy));
             if (shopArticle.empty()) {
                 shopArticleMap.remove(shopArticle.getShopAgent());
                 shopArticleQueue.remove();

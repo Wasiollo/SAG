@@ -37,9 +37,10 @@ public class ShopArticle implements Serializable {
         return (int) (budget / getPrice());
     }
 
-    public double buy(double budget) {
+    public double buy(int wontToBuy, double budget) {
         int canBuy = howMachCanBuy(budget);
-        return budget - (getPrice() * canBuy);
+        int toBuy = wontToBuy - canBuy <= 0 ? wontToBuy : canBuy;
+        return budget - (getPrice() * toBuy);
     }
 
     public boolean empty() {

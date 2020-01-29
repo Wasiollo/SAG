@@ -1,5 +1,6 @@
 package com.sag.pagent.shop.messages;
 
+import com.sag.pagent.shop.articles.Article;
 import com.sag.pagent.shop.articles.ArticleType;
 import lombok.Data;
 import lombok.Getter;
@@ -12,4 +13,10 @@ public class PurchaseArticle implements Serializable {
     private final ArticleType articleType;
     private final Integer amount;
     private final Double budget;
+
+    public PurchaseArticle(Article article) {
+        this.articleType = article.getArticleType();
+        this.amount = article.getAmount();
+        this.budget = this.amount * article.getPrice();
+    }
 }
