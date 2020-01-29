@@ -89,10 +89,10 @@ public class ManagerAgent extends BasicAgent {
             if (articlesToBuy.containsKey(article.getArticle())) {
                 Integer articleAmount = articlesToBuy.get(article.getArticle()) + article.getAmount();
                 articlesToBuy.put(article.getArticle(), articleAmount);
-                log.debug("Article existed, amount set to :" + articleAmount);
+                log.debug("Article {} existed, amount set to : {}", article.getArticle(), articleAmount);
             } else {
                 articlesToBuy.put(article.getArticle(), article.getAmount());
-                log.debug("Article didn't exist, amount set to: " + article.getAmount());
+                log.debug("Article {} didn't exist, amount set to: {}", article.getArticle(), article.getAmount());
             }
         });
     }

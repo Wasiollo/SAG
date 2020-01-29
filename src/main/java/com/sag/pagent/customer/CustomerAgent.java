@@ -22,7 +22,14 @@ import static com.sag.pagent.Constant.*;
 public class CustomerAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
     private OrderListDispatcher orderListDispatcher;
+    private OrderList orderList;
     private ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> receiveMessages.replyNotUnderstood(msg);
+
+    public CustomerAgent() {
+        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
+        orderListDispatcher = new OrderListDispatcher(this);
+        orderList = new OrderGenerator(MAX_GENERATED_NEEDS, MIN_GENERATED_BUDGET, MAX_GENERATED_BUDGET).generate();
+    }
 
     @Override
     protected void addServices(DFAgentDescription dfd) {
@@ -40,11 +47,7 @@ public class CustomerAgent extends BasicAgent {
     @Override
     protected void setup() {
         super.setup();
-        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
-
-        OrderList orderList = new OrderGenerator(MAX_GENERATED_NEEDS, MIN_GENERATED_BUDGET, MAX_GENERATED_BUDGET).generate();
-        orderListDispatcher = new OrderListDispatcher(this);
         sendPurchaseOrderToManagerAgents(orderList);
     }
 
@@ -75,8 +78,8 @@ public class CustomerAgent extends BasicAgent {
         protected void onTimeout() {
             super.onTimeout();
             orderListDispatcher.killManager(getFirstReceiver());
-            OrderList orderList = orderListDispatcher.getOrderList(getFirstReceiver(), getConversationId());
-            sendPurchaseOrderToManagerAgents(orderList);
+            OrderList resendOrderList = orderListDispatcher.getOrderList(getFirstReceiver(), getConversationId());
+            sendPurchaseOrderToManagerAgents(resendOrderList);
         }
     }
 }
