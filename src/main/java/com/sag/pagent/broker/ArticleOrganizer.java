@@ -8,6 +8,8 @@ import jade.core.AID;
 import java.io.Serializable;
 import java.util.*;
 
+import static java.lang.Math.min;
+
 public class ArticleOrganizer implements Serializable {
     private Map<ArticleType, Queue<ShopArticle>> shopArticleQueueMap = new EnumMap<>(ArticleType.class);
     private Map<ArticleType, Map<AID, ShopArticle>> shopArticleMapMap = new EnumMap<>(ArticleType.class);
@@ -55,9 +57,10 @@ public class ArticleOrganizer implements Serializable {
             ShopArticle shopArticle = shopArticleQueue.peek();
             int canBuy = shopArticle.howMachCanBuy(budget);
             if (canBuy == 0) break;
-            int toBuy = amount - canBuy < 0 ? amount : canBuy;
+            int toBuy = min(amount, canBuy);
+            shopArticle.buy(toBuy);
             amount -= toBuy;
-            budget -= shopArticle.buy(toBuy, budget);
+            budget -= toBuy * shopArticle.getPrice();
             shopArticleList.add(new ShopArticle(shopArticle, toBuy));
             if (shopArticle.empty()) {
                 shopArticleMap.remove(shopArticle.getShopAgent());

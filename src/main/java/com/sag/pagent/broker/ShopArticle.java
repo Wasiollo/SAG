@@ -5,11 +5,15 @@ import com.sag.pagent.shop.articles.ArticleType;
 import jade.core.AID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
+import static java.lang.Math.min;
+
 @RequiredArgsConstructor
 @Getter
+@ToString
 public class ShopArticle implements Serializable {
     private final AID shopAgent;
     private final Article article;
@@ -34,13 +38,11 @@ public class ShopArticle implements Serializable {
     }
 
     public int howMachCanBuy(double budget) {
-        return (int) (budget / getPrice());
+        return min((int) (budget / getPrice()), getAmount());
     }
 
-    public double buy(int wontToBuy, double budget) {
-        int canBuy = howMachCanBuy(budget);
-        int toBuy = wontToBuy - canBuy <= 0 ? wontToBuy : canBuy;
-        return budget - (getPrice() * toBuy);
+    public void buy(int buy) {
+        article.minusAmount(min(buy, getAmount()));
     }
 
     public boolean empty() {
