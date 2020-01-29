@@ -1,7 +1,7 @@
 package com.sag.pagent.manager;
 
 import com.sag.pagent.agents.BasicAgent;
-import com.sag.pagent.behaviors.HandleRespond;
+import com.sag.pagent.behaviors.HandleOneRespond;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.customer.order.OrderArticle;
@@ -97,7 +97,7 @@ public class ManagerAgent extends BasicAgent {
         });
     }
 
-    public class BuyProductsRespond extends HandleRespond {
+    public class BuyProductsRespond extends HandleOneRespond {
         public BuyProductsRespond(Agent agent, ACLMessage sendMessage) {
             super(agent, sendMessage);
         }

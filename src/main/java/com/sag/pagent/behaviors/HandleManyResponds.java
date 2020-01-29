@@ -7,7 +7,7 @@ import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class HandleManyResponds extends HandleRespond {
+public abstract class HandleManyResponds extends HandleOneRespond {
     private final int expectedRequestResponds;
     private int requestRespondsCounter;
 

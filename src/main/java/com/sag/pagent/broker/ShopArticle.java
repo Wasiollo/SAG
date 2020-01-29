@@ -6,9 +6,11 @@ import jade.core.AID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
+
 @RequiredArgsConstructor
 @Getter
-public class ShopArticle {
+public class ShopArticle implements Serializable {
     private final AID shopAgent;
     private final Article article;
 

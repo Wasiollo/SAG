@@ -1,12 +1,14 @@
 package com.sag.pagent.broker;
 
+import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.shop.articles.Article;
 import com.sag.pagent.shop.articles.ArticleType;
 import jade.core.AID;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class ArticleOrganizer {
+public class ArticleOrganizer implements Serializable {
     private Map<ArticleType, Queue<ShopArticle>> shopArticleQueueMap = new EnumMap<>(ArticleType.class);
     private Map<ArticleType, Map<AID, ShopArticle>> shopArticleMapMap = new EnumMap<>(ArticleType.class);
 
@@ -34,6 +36,14 @@ public class ArticleOrganizer {
         shopArticle = new ShopArticle(shopAgent, article);
         shopArticleMap.put(shopAgent, shopArticle);
         shopArticleQueue.add(shopArticle);
+    }
+
+    public List<ShopArticle> getLowestPriceShopArticleList(BuyProductsRequest buyProductsRequest) {
+        return getLowestPriceShopArticleList(
+                buyProductsRequest.getArticle(),
+                buyProductsRequest.getAmount(),
+                buyProductsRequest.getBudget()
+        );
     }
 
     public List<ShopArticle> getLowestPriceShopArticleList(ArticleType articleType, int amount, double budget) {

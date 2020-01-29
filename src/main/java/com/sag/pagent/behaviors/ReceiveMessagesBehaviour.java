@@ -12,7 +12,7 @@ import java.util.HashMap;
 @Slf4j
 public class ReceiveMessagesBehaviour extends CyclicBehaviour {
     private ReceiveMessageListener receiveMessageListener;
-    private HashMap<String, HandleRespond> respondMap;
+    private HashMap<String, HandleOneRespond> respondMap;
 
     public interface ReceiveMessageListener extends Serializable {
         void receivedNewMessage(ACLMessage msg) throws UnreadableException;
@@ -56,15 +56,15 @@ public class ReceiveMessagesBehaviour extends CyclicBehaviour {
     }
 
     private void receivedKnownMessage(ACLMessage msg) throws UnreadableException {
-        HandleRespond handleRespond = respondMap.get(msg.getConversationId());
-        handleRespond.action(msg);
-        if (Boolean.TRUE.equals(handleRespond.isFinished())) {
+        HandleOneRespond handleOneRespond = respondMap.get(msg.getConversationId());
+        handleOneRespond.action(msg);
+        if (Boolean.TRUE.equals(handleOneRespond.isFinished())) {
             unregisterRespond(msg.getConversationId());
         }
     }
 
-    public void registerRespond(HandleRespond handleRespond) {
-        respondMap.put(handleRespond.getSendMessage().getConversationId(), handleRespond);
+    public void registerRespond(HandleOneRespond handleOneRespond) {
+        respondMap.put(handleOneRespond.getConversationId(), handleOneRespond);
     }
 
     public void unregisterRespond(String conversationId) {

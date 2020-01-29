@@ -3,8 +3,8 @@ package com.sag.pagent.broker;
 import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.broker.behaviours.QueryShopsBehaviour;
+import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.broker.messages.RegisterShopAgent;
-import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.shop.messages.ArticlesStatusReply;
 import jade.core.AID;
@@ -14,7 +14,6 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.sag.pagent.Constant.QUERY_ARTICLES_TIME;
@@ -23,7 +22,6 @@ import static com.sag.pagent.Constant.QUERY_ARTICLES_TIME;
 public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.QueryShopsBehaviourListener {
     private ReceiveMessagesBehaviour receiveMessages;
     private QueryShopsBehaviour queryShopsBehaviour;
-    private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
     private ArticleOrganizer articleOrganizer = new ArticleOrganizer();
 
     public BrokerAgent() {
@@ -57,9 +55,9 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
         if (content instanceof RegisterShopAgent) {
             logReceivedMessage(msg, RegisterShopAgent.class);
             handleRegisterShopAgent(msg);
-        } else if (content instanceof PurchaseOrder) {
-            logReceivedMessage(msg, PurchaseOrder.class);
-            handlePurchaseOrder(msg);
+        } else if (content instanceof BuyProductsRequest) {
+            logReceivedMessage(msg, BuyProductsRequest.class);
+            handleBuyProductsRequest(msg);
         } else {
             receiveMessages.replyNotUnderstood(msg);
         }
@@ -74,14 +72,14 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
         }
     }
 
-    private void handlePurchaseOrder(ACLMessage msg) {
+    private void handleBuyProductsRequest(ACLMessage msg) {
         try {
-            PurchaseOrder purchaseOrder = (PurchaseOrder) msg.getContentObject();
-            purchaseOrders.add(purchaseOrder);
+            BuyProductsRequest buyProductsRequest = (BuyProductsRequest) msg.getContentObject();
+            List<ShopArticle> shopArticleList = articleOrganizer.getLowestPriceShopArticleList(buyProductsRequest);
 
-            ACLMessage reply = msg.createReply();
-            reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
-            send(reply);
+//            ACLMessage reply = msg.createReply();
+//            reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+//            send(reply);
         } catch (UnreadableException e) {
             log.error("Exception while handling PurchaseOrder message", e);
         }

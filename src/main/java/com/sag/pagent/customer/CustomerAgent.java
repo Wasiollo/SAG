@@ -1,7 +1,7 @@
 package com.sag.pagent.customer;
 
 import com.sag.pagent.agents.BasicAgent;
-import com.sag.pagent.behaviors.HandleRespond;
+import com.sag.pagent.behaviors.HandleOneRespond;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.customer.order.OrderGenerator;
 import com.sag.pagent.customer.order.OrderList;
@@ -60,7 +60,7 @@ public class CustomerAgent extends BasicAgent {
         log.debug("PurchaseOrders sent");
     }
 
-    private class PurchaseOrderRespond extends HandleRespond {
+    private class PurchaseOrderRespond extends HandleOneRespond {
         public PurchaseOrderRespond(Agent myAgent, ACLMessage sendMessage) {
             super(myAgent, sendMessage);
         }
