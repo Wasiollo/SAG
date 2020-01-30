@@ -80,22 +80,24 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
             BuyProductsRequest buyProductsRequest = (BuyProductsRequest) msg.getContentObject();
             List<ShopArticle> shopArticleList = articleOrganizer.getLowestPriceShopArticleList(buyProductsRequest);
             if (shopArticleList.isEmpty()) {
-                ACLMessage reply = msg.createReply();
-                reply.setContentObject(new BuyProductsResponse(0, 0d, buyProductsRequest));
-                send(reply);
+                replyNotBuy(msg, buyProductsRequest);
+                return;
             }
 
             BuyProducts buyProducts = new BuyProducts(this, msg, buyProductsRequest, shopArticleList);
-            for (ACLMessage message : buyProducts.getMessages()) {
-                log.debug("Send PurchaseArticle message to: {} with id: {}", message.getAllReceiver().next(), message.getConversationId());
-                send(message);
-            }
+            buyProducts.getMessages().forEach(this::send);
             buyProducts.getHandleOneRespondList().forEach(receiveMessages::registerRespond);
         } catch (IOException e) {
             log.error("Exception while serializing BuyProductsResponse", e);
         } catch (UnreadableException e) {
             log.error("Exception while handling PurchaseOrder message", e);
         }
+    }
+
+    private void replyNotBuy(ACLMessage msg, BuyProductsRequest buyProductsRequest) throws IOException {
+        ACLMessage reply = msg.createReply();
+        reply.setContentObject(new BuyProductsResponse(0, 0d, buyProductsRequest));
+        send(reply);
     }
 
     @Override

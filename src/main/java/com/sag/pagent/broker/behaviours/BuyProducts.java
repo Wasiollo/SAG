@@ -64,6 +64,7 @@ public class BuyProducts extends HandleManyMessagesRespond {
         } catch (IOException e) {
             log.error("Exception while serializing Article", e);
         }
+        log.debug("Generated Massage: {}", getNotFinishedShopAgentName());
     }
 
     public List<ACLMessage> getMessages() {
@@ -76,6 +77,7 @@ public class BuyProducts extends HandleManyMessagesRespond {
 
     @Override
     public void onRespond(ACLMessage msg) {
+        log.debug("Received PurchaseReport from: {}", msg.getSender().getLocalName());
         try {
             PurchaseReport purchaseReport = (PurchaseReport) msg.getContentObject();
             boughtAmount += purchaseReport.getAmount();

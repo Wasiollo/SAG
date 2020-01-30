@@ -16,6 +16,6 @@ public class StartAgent extends Agent {
         addBehaviour(new CreateAgentBehaviour(this, 100, ManagerAgent.class, 1));
         addBehaviour(new CreateAgentBehaviour(this, 200, BrokerAgent.class, 2));
         addBehaviour(new CreateAgentBehaviour(this, 300, ShopAgent.class, 4));
-        addBehaviour(new CreateAgentBehaviour(this, 500, CustomerAgent.class, 1));
+        addBehaviour(new CreateAgentBehaviour(this, 1000, CustomerAgent.class, 1));
     }
 }

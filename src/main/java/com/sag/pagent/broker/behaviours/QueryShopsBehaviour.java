@@ -52,7 +52,9 @@ public class QueryShopsBehaviour extends MyTickerBehaviour {
     }
 
     public void addShopAgent(AID shopAgent) {
+        log.debug("addShopAgent {}", shopAgent.getLocalName());
         shopAgents.add(shopAgent);
+        reset();
     }
 
     public interface QueryShopsBehaviourListener extends Serializable {

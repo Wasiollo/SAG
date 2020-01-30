@@ -49,6 +49,7 @@ public class ArticleOrganizer implements Serializable {
         Map<AID, ShopArticle> shopArticleMap = shopArticleMapMap.get(articleType);
         List<ShopArticle> shopArticleList = new LinkedList<>();
         if (shopArticleQueue == null) {
+            log.debug("ArticleType {} not found in shop", articleType);
             return shopArticleList;
         }
 
