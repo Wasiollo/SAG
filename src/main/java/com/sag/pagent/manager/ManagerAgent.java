@@ -90,6 +90,7 @@ public class ManagerAgent extends BasicAgent {
     private void sendBuyProductsToBrokerAgents(String customerAgentId, AID broker, ArticleType articleType) {
         log.debug("sendBuyProductsToBrokerAgents articleType: {} to: {}", articleType, broker.getLocalName());
         BuyProductsRequest buyProductsRequest = prepareProductToBuyByBroker(customerAgentId, broker, articleType);
+        if (buyProductsRequest == null) return;
         ACLMessage message = BuyProductsDispatcher.prepareBuyProductsMessage(broker, buyProductsRequest);
         Date respondDate = new Date();
         respondDate.setTime(respondDate.getTime() + BUY_PRODUCTS_TIME_TO_RESPOND);
@@ -104,6 +105,11 @@ public class ManagerAgent extends BasicAgent {
 
         amount = purchaseOrderManager.getMinAmount(customerAgentId, articleType, amount);
         budget = purchaseOrderManager.getMinBudget(customerAgentId, budget);
+
+        if (amount == 0 || budget == 0) {
+            log.info("Nothing to buy for ArticleType: {}, amount: {}, budget: {}", articleType, amount, budget);
+            return null;
+        }
 
         return new BuyProductsRequest(articleType, amount, budget);
     }
@@ -124,7 +130,8 @@ public class ManagerAgent extends BasicAgent {
             Object content = msg.getContentObject();
             if (content instanceof BuyProductsResponse) {
                 BuyProductsResponse response = (BuyProductsResponse) content;
-                brokerHierarchy.updateHierarchy(msg.getSender(), response);
+                brokerHierarchy.updateHierarchy(msg.getSender(), response, buyProductsRequest);
+                purchaseOrderManager.recover(customerAgentId, response);
                 sendBuyProductsToBrokerAgents(customerAgentId, msg.getSender(), response.getRequest().getArticleType());
             }
             finished();

@@ -4,6 +4,7 @@ import com.sag.pagent.shop.articles.ArticleService;
 import com.sag.pagent.shop.articles.ArticleType;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -21,7 +22,8 @@ public class OrderGenerator {
     }
 
     private List<OrderArticle> generateOrderArticle() {
-        List<ArticleType> randomlyChosenArticleTypes = ArticleService.chooseArticleTypesRandomly();
+        List<ArticleType> randomlyChosenArticleTypes = Collections.singletonList(
+                ArticleService.chooseArticleTypesRandomly().iterator().next());
 
         return randomlyChosenArticleTypes.stream()
                 .map(articleType -> OrderArticle.builder()

@@ -1,5 +1,6 @@
 package com.sag.pagent.manager.hierarchy;
 
+import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.manager.messages.BuyProductsResponse;
 import com.sag.pagent.shop.articles.ArticleType;
 import jade.core.AID;
@@ -15,7 +16,7 @@ public abstract class BrokerHierarchy implements Serializable {
     private Map<BrokerHierarchyKey, Double> hierarchy = new HashMap<>();
     private Map<AID, Boolean> isBrokerAliveMap = new HashMap<>();
 
-    public abstract void updateHierarchy(AID sender, BuyProductsResponse response);
+    public abstract void updateHierarchy(AID sender, BuyProductsResponse response, BuyProductsRequest buyProductsRequest);
 
     public Double getMultiplier(ArticleType type, AID broker) {
         return hierarchy.get(new BrokerHierarchyKey(broker, type));

@@ -1,6 +1,7 @@
 package com.sag.pagent.manager;
 
 import com.sag.pagent.customer.order.OrderArticle;
+import com.sag.pagent.manager.messages.BuyProductsResponse;
 import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.shop.articles.ArticleType;
 import lombok.extern.slf4j.Slf4j;
@@ -68,5 +69,17 @@ public class PurchaseOrderManager implements Serializable {
     public void addAmount(String customerAgentId, ArticleType articleType, Integer amount) {
         int currAmount = articlesToBuyMap.get(customerAgentId).get(articleType);
         articlesToBuyMap.get(customerAgentId).put(articleType, currAmount + amount);
+    }
+
+    public void recover(String customerAgentId, BuyProductsResponse response) {
+        ArticleType articleType = response.getRequest().getArticleType();
+        int remainAmount = response.getRequest().getAmount() - response.getBoughtAmount();
+        double remainBudget = response.getRequest().getBudget() - response.getUsedMoney();
+
+        int currAmount = articlesToBuyMap.get(customerAgentId).get(articleType);
+        articlesToBuyMap.get(customerAgentId).put(articleType, currAmount + remainAmount);
+
+        double currBudget = budgetMap.get(customerAgentId);
+        budgetMap.put(customerAgentId, currBudget + remainBudget);
     }
 }
