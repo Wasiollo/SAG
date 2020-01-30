@@ -18,8 +18,7 @@ public abstract class BrokerHierarchy implements Serializable {
     public abstract void updateHierarchy(AID sender, BuyProductsResponse response);
 
     public Double getMultiplier(ArticleType type, AID broker) {
-//        return hierarchy.get(new BrokerHierarchyKey(broker, type));
-        return 1d;
+        return hierarchy.get(new BrokerHierarchyKey(broker, type));
     }
 
     public void updateBrokers(List<AID> brokers) {
