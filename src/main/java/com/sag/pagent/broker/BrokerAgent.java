@@ -86,7 +86,10 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
             }
 
             BuyProducts buyProducts = new BuyProducts(this, msg, buyProductsRequest, shopArticleList);
-            buyProducts.getMessages().forEach(this::send);
+            for (ACLMessage message : buyProducts.getMessages()) {
+                log.debug("Send PurchaseArticle message to: {} with id: {}", message.getAllReceiver().next(), message.getConversationId());
+                send(message);
+            }
             buyProducts.getHandleOneRespondList().forEach(receiveMessages::registerRespond);
         } catch (IOException e) {
             log.error("Exception while serializing BuyProductsResponse", e);

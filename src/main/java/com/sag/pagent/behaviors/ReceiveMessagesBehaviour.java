@@ -44,10 +44,10 @@ public class ReceiveMessagesBehaviour extends CyclicBehaviour {
                 receiveMessageListener.receivedNewMessage(msg);
             }
         } catch (UnreadableException ue){
-            log.error("Message could not be parsed");
+            log.error("Message could not be parsed", ue);
             replyNotUnderstood(msg);
         } catch (Exception ex) {
-            log.error("Exception occurred parsing Message");
+            log.error("Exception occurred parsing Message", ex);
         }
     }
 
@@ -72,7 +72,7 @@ public class ReceiveMessagesBehaviour extends CyclicBehaviour {
     }
 
     public void replyNotUnderstood(ACLMessage msg) {
-        log.error("NotUnderstood message with conversationId: {}", msg.getConversationId());
+        log.error("Send NotUnderstood message with conversationId: {} to: {}", msg.getConversationId(), msg.getSender().getLocalName());
         try {
             java.io.Serializable content = msg.getContentObject();
             ACLMessage reply = msg.createReply();

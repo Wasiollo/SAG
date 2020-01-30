@@ -5,6 +5,7 @@ import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.shop.articles.ArticleType;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Map;
 import static java.lang.StrictMath.min;
 
 @Slf4j
-public class PurchaseOrderManager {
+public class PurchaseOrderManager implements Serializable {
     private Map<String, Map<ArticleType, Integer>> articlesToBuyMap = new HashMap<>();
     private Map<String, Double> budgetMap = new HashMap<>();
 

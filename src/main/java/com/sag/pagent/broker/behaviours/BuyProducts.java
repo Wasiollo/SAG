@@ -13,9 +13,11 @@ import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class BuyProducts extends HandleManyMessagesRespond {
@@ -52,7 +54,7 @@ public class BuyProducts extends HandleManyMessagesRespond {
             for (ShopArticle shopArticle : shopArticleList) {
                 ACLMessage aclMessage = MessagesUtils.createMessage(ACLMessage.REQUEST);
                 aclMessage.addReceiver(shopArticle.getShopAgent());
-                PurchaseArticle purchaseArticle = new PurchaseArticle(shopArticle.getArticle());
+                PurchaseArticle purchaseArticle = new PurchaseArticle(shopArticle);
                 aclMessage.setContentObject(purchaseArticle);
                 aclMessage.setReplyByDate(respondDate);
                 shopArticleMap.put(aclMessage.getConversationId(), purchaseArticle);
@@ -86,12 +88,20 @@ public class BuyProducts extends HandleManyMessagesRespond {
 
     @Override
     protected void onTimeout() {
-        super.onTimeout();
+        log.debug("timeout for PurchaseArticle messages set to {}", getNotFinishedShopAgentName());
         shopArticleMap.values().forEach(purchaseArticle -> usedMoney += purchaseArticle.getBudget());
+        onRespondAll();
+    }
+
+    @NotNull
+    private List<String> getNotFinishedShopAgentName() {
+        return shopArticleMap.values().stream().map(purchaseArticle ->
+                purchaseArticle.getShopAgent().getLocalName()).collect(Collectors.toList());
     }
 
     @Override
     public void onRespondAll() {
+        log.debug("Send BuyProductsResponse back to: {}", buyProductsRequestMessage.getSender().getLocalName());
         try {
             ACLMessage reply = buyProductsRequestMessage.createReply();
             reply.setContentObject(new BuyProductsResponse(boughtAmount, usedMoney, buyProductsRequest));

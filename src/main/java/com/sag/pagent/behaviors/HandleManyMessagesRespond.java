@@ -3,7 +3,9 @@ package com.sag.pagent.behaviors;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class HandleManyMessagesRespond extends HandleTimeout {
     private int messageCounter = 0;
     private int messageNumber = 0;
@@ -29,10 +31,13 @@ public abstract class HandleManyMessagesRespond extends HandleTimeout {
         @Override
         protected void action(ACLMessage msg) throws UnreadableException {
             messageCounter++;
+            log.debug("get message {}/{} from {} id {}", messageCounter, messageNumber, msg.getSender().getLocalName(), msg.getConversationId());
             onRespond(msg);
             if (messageCounter == messageNumber) {
                 onRespondAll();
+                HandleManyMessagesRespond.this.finished();
             }
+            finished();
         }
     }
 }
