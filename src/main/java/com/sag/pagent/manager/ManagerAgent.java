@@ -4,7 +4,6 @@ import com.sag.pagent.agents.BasicAgent;
 import com.sag.pagent.behaviors.HandleOneRespond;
 import com.sag.pagent.behaviors.ReceiveMessagesBehaviour;
 import com.sag.pagent.broker.messages.BuyProductsRequest;
-import com.sag.pagent.customer.order.OrderArticle;
 import com.sag.pagent.manager.hierarchy.BrokerBudgetQuantizationHierarchy;
 import com.sag.pagent.manager.hierarchy.BrokerHierarchy;
 import com.sag.pagent.manager.hierarchy.BrokerSamplingHierarchy;
@@ -21,7 +20,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.Date;
 
 import static com.sag.pagent.Constant.BUY_PRODUCTS_TIME_TO_RESPOND;
 import static com.sag.pagent.Constant.SAMPLING_ALGORITHM;
@@ -29,10 +28,17 @@ import static com.sag.pagent.Constant.SAMPLING_ALGORITHM;
 @Slf4j
 public class ManagerAgent extends BasicAgent {
     private ReceiveMessagesBehaviour receiveMessages;
-    private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
-    private Double budget = 0d;
-    private Map<ArticleType, Integer> articlesToBuy = new EnumMap<>(ArticleType.class);
+    private PurchaseOrderManager purchaseOrderManager = new PurchaseOrderManager();
     private BrokerHierarchy brokerHierarchy;
+
+    public ManagerAgent() {
+        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
+        if (SAMPLING_ALGORITHM) {
+            brokerHierarchy = new BrokerSamplingHierarchy();
+        } else {
+            brokerHierarchy = new BrokerBudgetQuantizationHierarchy();
+        }
+    }
 
     @Override
     protected void addServices(DFAgentDescription dfd) {
@@ -50,13 +56,7 @@ public class ManagerAgent extends BasicAgent {
     @Override
     protected void setup() {
         super.setup();
-        receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         addBehaviour(receiveMessages);
-        if (SAMPLING_ALGORITHM) {
-            brokerHierarchy = new BrokerSamplingHierarchy();
-        } else {
-            brokerHierarchy = new BrokerBudgetQuantizationHierarchy();
-        }
         brokerHierarchy.initializeHierarchy(ServiceUtils.findAgentList(this, ServiceType.BROKER));
     }
 
@@ -74,27 +74,10 @@ public class ManagerAgent extends BasicAgent {
     private void handlePurchaseOrder(ACLMessage msg) throws UnreadableException {
         PurchaseOrder purchaseOrder = (PurchaseOrder) msg.getContentObject();
         log.info("Handling purchaseOrder from " + purchaseOrder.getCustomerAgentId());
-        purchaseOrders.add(purchaseOrder);
-        budget += purchaseOrder.getBudget();
-        addArticlesToBuy(purchaseOrder.getArticlesToBuy());
+        purchaseOrderManager.updatePurchaseOrder(purchaseOrder);
         ACLMessage reply = msg.createReply();
         reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
         send(reply);
-        log.info("Handled Purchase order from conversation: " + msg.getConversationId());
-        log.debug("Budget: " + budget);
-    }
-
-    private void addArticlesToBuy(List<OrderArticle> articles) {
-        articles.forEach(article -> {
-            if (articlesToBuy.containsKey(article.getArticle())) {
-                Integer articleAmount = articlesToBuy.get(article.getArticle()) + article.getAmount();
-                articlesToBuy.put(article.getArticle(), articleAmount);
-                log.debug("Article {} existed, amount set to : {}", article.getArticle(), articleAmount);
-            } else {
-                articlesToBuy.put(article.getArticle(), article.getAmount());
-                log.debug("Article {} didn't exist, amount set to: {}", article.getArticle(), article.getAmount());
-            }
-        });
     }
 
     public class BuyProductsRespond extends HandleOneRespond {

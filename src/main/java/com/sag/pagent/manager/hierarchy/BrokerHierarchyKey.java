@@ -4,8 +4,10 @@ import com.sag.pagent.shop.articles.ArticleType;
 import jade.core.AID;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class BrokerHierarchyKey {
+public class BrokerHierarchyKey implements Serializable {
     private final AID broker;
     private final ArticleType type;
 
