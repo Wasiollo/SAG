@@ -5,23 +5,26 @@ import com.sag.pagent.manager.messages.PurchaseOrder;
 import com.sag.pagent.shop.articles.ArticleType;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.lang.StrictMath.min;
 
 @Slf4j
 public class PurchaseOrderManager {
     private Map<String, Map<ArticleType, Integer>> articlesToBuyMap = new HashMap<>();
     private Map<String, Double> budgetMap = new HashMap<>();
 
-    public void updatePurchaseOrder(PurchaseOrder purchaseOrder) {
+    public void addPurchaseOrder(PurchaseOrder purchaseOrder) {
         String customerAgentId = purchaseOrder.getCustomerAgentId();
         articlesToBuyMap.putIfAbsent(customerAgentId, new HashMap<>());
         budgetMap.putIfAbsent(customerAgentId, 0d);
-        updatePurchaseOrder(customerAgentId, purchaseOrder.getArticlesToBuy(), purchaseOrder.getBudget());
+        addPurchaseOrder(customerAgentId, purchaseOrder.getArticlesToBuy(), purchaseOrder.getBudget());
     }
 
-    private void updatePurchaseOrder(String customerAgentId, List<OrderArticle> articles, double budget) {
+    private void addPurchaseOrder(String customerAgentId, List<OrderArticle> articles, double budget) {
         Double savedBudget = budgetMap.get(customerAgentId);
         addArticlesToBuy(customerAgentId, articles);
         budgetMap.put(customerAgentId, savedBudget + budget);
@@ -41,5 +44,28 @@ public class PurchaseOrderManager {
                 log.debug("Article {} didn't exist, amount set to: {}", article.getArticle(), article.getAmount());
             }
         });
+    }
+
+    public List<ArticleType> getArticleTypeList(String customerAgentId) {
+        return new ArrayList<>(articlesToBuyMap.get(customerAgentId).keySet());
+    }
+
+    public int getMinAmount(String customerAgentId, ArticleType articleType, int amount) {
+        int currAmount = articlesToBuyMap.get(customerAgentId).get(articleType);
+        int minusAmount = min(amount, currAmount);
+        articlesToBuyMap.get(customerAgentId).put(articleType, currAmount - minusAmount);
+        return minusAmount;
+    }
+
+    public double getMinBudget(String customerAgentId, double budget) {
+        double currBudget = budgetMap.get(customerAgentId);
+        double minusBudget = min(budget, currBudget);
+        budgetMap.put(customerAgentId, currBudget - minusBudget);
+        return minusBudget;
+    }
+
+    public void addAmount(String customerAgentId, ArticleType articleType, Integer amount) {
+        int currAmount = articlesToBuyMap.get(customerAgentId).get(articleType);
+        articlesToBuyMap.get(customerAgentId).put(articleType, currAmount + amount);
     }
 }

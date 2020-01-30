@@ -48,6 +48,7 @@ public class CustomerAgent extends BasicAgent {
     protected void setup() {
         super.setup();
         addBehaviour(receiveMessages);
+        orderListDispatcher.updateManagerAgents();
         sendPurchaseOrderToManagerAgents(orderList);
     }
 

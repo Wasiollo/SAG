@@ -23,10 +23,13 @@ public class OrderListDispatcher implements Serializable {
 
     public OrderListDispatcher(Agent agent) {
         this.agent = agent;
+    }
+
+    public void updateManagerAgents() {
         List<AID> managerAgents = ServiceUtils.findAgentList(agent, ServiceType.MANAGER);
         for (AID manager : managerAgents) {
-            isManagerAlive.put(manager, true);
-            managerToOrderListMap.put(manager, new HashMap<>());
+            isManagerAlive.putIfAbsent(manager, true);
+            managerToOrderListMap.putIfAbsent(manager, new HashMap<>());
         }
     }
 

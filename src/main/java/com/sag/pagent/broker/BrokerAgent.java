@@ -6,6 +6,7 @@ import com.sag.pagent.broker.behaviours.BuyProducts;
 import com.sag.pagent.broker.behaviours.QueryShopsBehaviour;
 import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.broker.messages.RegisterShopAgent;
+import com.sag.pagent.manager.messages.BuyProductsResponse;
 import com.sag.pagent.services.ServiceType;
 import com.sag.pagent.shop.messages.ArticlesStatusReply;
 import jade.core.AID;
@@ -15,6 +16,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.sag.pagent.Constant.QUERY_ARTICLES_TIME;
@@ -77,9 +79,17 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
         try {
             BuyProductsRequest buyProductsRequest = (BuyProductsRequest) msg.getContentObject();
             List<ShopArticle> shopArticleList = articleOrganizer.getLowestPriceShopArticleList(buyProductsRequest);
+            if (shopArticleList.isEmpty()) {
+                ACLMessage reply = msg.createReply();
+                reply.setContentObject(new BuyProductsResponse(0, 0d, buyProductsRequest));
+                send(reply);
+            }
+
             BuyProducts buyProducts = new BuyProducts(this, msg, buyProductsRequest, shopArticleList);
             buyProducts.getMessages().forEach(this::send);
             buyProducts.getHandleOneRespondList().forEach(receiveMessages::registerRespond);
+        } catch (IOException e) {
+            log.error("Exception while serializing BuyProductsResponse", e);
         } catch (UnreadableException e) {
             log.error("Exception while handling PurchaseOrder message", e);
         }

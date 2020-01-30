@@ -57,7 +57,6 @@ public class ManagerAgent extends BasicAgent {
     protected void setup() {
         super.setup();
         addBehaviour(receiveMessages);
-        brokerHierarchy.initializeHierarchy(ServiceUtils.findAgentList(this, ServiceType.BROKER));
     }
 
     private ReceiveMessagesBehaviour.ReceiveMessageListener receiveMessageListener = msg -> {
@@ -74,15 +73,49 @@ public class ManagerAgent extends BasicAgent {
     private void handlePurchaseOrder(ACLMessage msg) throws UnreadableException {
         PurchaseOrder purchaseOrder = (PurchaseOrder) msg.getContentObject();
         log.info("Handling purchaseOrder from " + purchaseOrder.getCustomerAgentId());
-        purchaseOrderManager.updatePurchaseOrder(purchaseOrder);
+        purchaseOrderManager.addPurchaseOrder(purchaseOrder);
+        brokerHierarchy.updateBrokers(ServiceUtils.findAgentList(this, ServiceType.BROKER));
         ACLMessage reply = msg.createReply();
         reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
         send(reply);
+        sendInitialBuyMessages(purchaseOrder.getCustomerAgentId());
+    }
+
+    private void sendInitialBuyMessages(String customerAgentId) {
+        purchaseOrderManager.getArticleTypeList(customerAgentId).forEach(articleType ->
+                brokerHierarchy.getAliveBrokerList().forEach(broker ->
+                        sendBuyProductsToBrokerAgents(customerAgentId, broker, articleType)));
+    }
+
+    private void sendBuyProductsToBrokerAgents(String customerAgentId, AID broker, ArticleType articleType) {
+        log.debug("sendBuyProductsToBrokerAgents articleType: {} to: {}", articleType, broker.getLocalName());
+        BuyProductsRequest buyProductsRequest = prepareProductToBuyByBroker(customerAgentId, broker, articleType);
+        ACLMessage message = BuyProductsDispatcher.prepareBuyProductsMessage(broker, buyProductsRequest);
+        Date respondDate = new Date();
+        respondDate.setTime(respondDate.getTime() + BUY_PRODUCTS_TIME_TO_RESPOND);
+        message.setReplyByDate(respondDate);
+        send(message);
+        receiveMessages.registerRespond(new BuyProductsRespond(this, message, customerAgentId, buyProductsRequest));
+    }
+
+    private BuyProductsRequest prepareProductToBuyByBroker(String customerAgentId, AID broker, ArticleType articleType) {
+        int amount = (int) (10 * brokerHierarchy.getMultiplier(articleType, broker));
+        double budget = 100d * brokerHierarchy.getMultiplier(articleType, broker);
+
+        amount = purchaseOrderManager.getMinAmount(customerAgentId, articleType, amount);
+        budget = purchaseOrderManager.getMinBudget(customerAgentId, budget);
+
+        return new BuyProductsRequest(articleType, amount, budget);
     }
 
     public class BuyProductsRespond extends HandleOneRespond {
-        public BuyProductsRespond(Agent agent, ACLMessage sendMessage) {
+        private final String customerAgentId;
+        private final BuyProductsRequest buyProductsRequest;
+
+        public BuyProductsRespond(Agent agent, ACLMessage sendMessage, String customerAgentId, BuyProductsRequest buyProductsRequest) {
             super(agent, sendMessage);
+            this.customerAgentId = customerAgentId;
+            this.buyProductsRequest = buyProductsRequest;
         }
 
         @Override
@@ -91,8 +124,8 @@ public class ManagerAgent extends BasicAgent {
             Object content = msg.getContentObject();
             if (content instanceof BuyProductsResponse) {
                 BuyProductsResponse response = (BuyProductsResponse) content;
-                updateHierarchy(msg.getSender(), response);
-                sendBuyProductsToBrokerAgents(msg.getSender(), response.getRequest().getArticle());
+                brokerHierarchy.updateHierarchy(msg.getSender(), response);
+                sendBuyProductsToBrokerAgents(customerAgentId, msg.getSender(), response.getRequest().getArticleType());
             }
             finished();
         }
@@ -100,29 +133,8 @@ public class ManagerAgent extends BasicAgent {
         @Override
         protected void onTimeout() {
             super.onTimeout();
-//            TODO :)
+            log.debug("Lost {} budget", buyProductsRequest.getBudget());
+            purchaseOrderManager.addAmount(customerAgentId, buyProductsRequest.getArticleType(), buyProductsRequest.getAmount());
         }
-    }
-
-    private void updateHierarchy(AID sender, BuyProductsResponse response) {
-        brokerHierarchy.updateHierarchy(sender, response);
-    }
-
-    private void sendBuyProductsToBrokerAgents(AID broker, ArticleType articleType) {
-        ACLMessage message = BuyProductsDispatcher.prepareBuyProductsMessage(
-                broker,
-                prepareProductToBuyByBroker(broker, articleType)
-        );
-        Date respondDate = new Date();
-        respondDate.setTime(respondDate.getTime() + BUY_PRODUCTS_TIME_TO_RESPOND);
-        message.setReplyByDate(respondDate);
-        send(message);
-        receiveMessages.registerRespond(new BuyProductsRespond(this, message));
-
-    }
-
-    private BuyProductsRequest prepareProductToBuyByBroker(AID broker, ArticleType articleType) {
-//        TODO :)
-        return null;
     }
 }
