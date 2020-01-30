@@ -34,9 +34,9 @@ public class ManagerAgent extends BasicAgent {
     public ManagerAgent() {
         receiveMessages = new ReceiveMessagesBehaviour(this, receiveMessageListener);
         if (SAMPLING_ALGORITHM) {
-            brokerHierarchy = new BrokerSamplingHierarchy();
+            brokerHierarchy = new BrokerSamplingHierarchy(purchaseOrderManager);
         } else {
-            brokerHierarchy = new BrokerBudgetQuantizationHierarchy();
+            brokerHierarchy = new BrokerBudgetQuantizationHierarchy(purchaseOrderManager);
         }
     }
 
@@ -132,7 +132,11 @@ public class ManagerAgent extends BasicAgent {
                 BuyProductsResponse response = (BuyProductsResponse) content;
                 brokerHierarchy.updateHierarchy(msg.getSender(), response, buyProductsRequest);
                 purchaseOrderManager.recover(customerAgentId, response);
-                sendBuyProductsToBrokerAgents(customerAgentId, msg.getSender(), response.getRequest().getArticleType());
+                if (brokerHierarchy.isFinished(response.getRequest().getArticleType())) {
+                    log.info("Buying ArticleType {} is finished", response.getRequest().getArticleType());
+                } else {
+                    sendBuyProductsToBrokerAgents(customerAgentId, msg.getSender(), response.getRequest().getArticleType());
+                }
             }
             finished();
         }
