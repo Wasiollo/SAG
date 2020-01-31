@@ -100,12 +100,13 @@ public class ManagerAgent extends BasicAgent {
     }
 
     private BuyProductsRequest prepareProductToBuyByBroker(String customerAgentId, AID broker, ArticleType articleType) {
-        int amount = brokerHierarchy.getNextAmount(broker, articleType);
+        int amount = brokerHierarchy.getNextAmount(broker, articleType, purchaseOrderManager.getAmount(customerAgentId, articleType));
         double budget = brokerHierarchy.getNextBudget(broker, articleType);
 
         amount = purchaseOrderManager.getMinAmount(customerAgentId, articleType, amount);
         budget = purchaseOrderManager.getMinBudget(customerAgentId, budget);
         BuyProductsRequest buyProductsRequest = new BuyProductsRequest(articleType, amount, budget);
+//        log.info("Try buying {} ArticleType: {}, amount: {}, budget: {}", broker.getLocalName(), articleType, amount, budget);
 
         if (amount == 0 || budget == 0) {
             log.info("Nothing to buy for {} ArticleType: {}, amount: {}, budget: {}", broker.getLocalName(), articleType, amount, budget);

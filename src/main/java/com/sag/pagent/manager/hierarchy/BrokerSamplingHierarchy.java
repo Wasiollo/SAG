@@ -1,8 +1,6 @@
 package com.sag.pagent.manager.hierarchy;
 
-import com.sag.pagent.broker.messages.BuyProductsRequest;
 import com.sag.pagent.manager.PurchaseOrderManager;
-import com.sag.pagent.manager.messages.BuyProductsResponse;
 import com.sag.pagent.shop.articles.ArticleType;
 import jade.core.AID;
 
@@ -16,17 +14,7 @@ public class BrokerSamplingHierarchy extends BrokerHierarchy {
     }
 
     @Override
-    public void update(AID broker, BuyProductsRequest request, BuyProductsResponse response) {
-        if (response.getBoughtAmount() == 0) return;
-        ArticleType articleType = request.getArticleType();
-
-        double boughtRate = response.getUsedMoney() / response.getBoughtAmount();
-        double lastBoughtRate = getMultiplier(broker, articleType);
-        setMultiplier(broker, articleType, lastBoughtRate * 0.25d + boughtRate * 0.75d);
-    }
-
-    @Override
-    public int getNextAmount(AID broker, ArticleType type) {
+    public int getNextAmount(AID broker, ArticleType type, int maxAmount) {
         iteration = max(iteration, getStartIteration());
         iteration++;
 

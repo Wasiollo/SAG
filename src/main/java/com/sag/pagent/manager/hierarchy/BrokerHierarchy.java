@@ -24,19 +24,24 @@ public abstract class BrokerHierarchy implements Serializable {
     }
 
     public void updateHierarchy(AID broker, BuyProductsRequest request, BuyProductsResponse response) {
-        update(broker, request, response);
         checkIfBrokerBoughtSth(broker, response);
-    }
 
-    public abstract void update(AID broker, BuyProductsRequest request, BuyProductsResponse response);
+        if (response.getBoughtAmount() == 0) return;
+
+        ArticleType articleType = request.getArticleType();
+
+        double boughtRate = response.getUsedMoney() / response.getBoughtAmount();
+        double lastBoughtRate = getMultiplier(broker, articleType);
+        setMultiplier(broker, articleType, lastBoughtRate * 0.25d + boughtRate * 0.75d);
+    }
 
     private void checkIfBrokerBoughtSth(AID broker, BuyProductsResponse response) {
         setBrokerBoughtAny(broker, response.getRequest().getArticleType(), response.getBoughtAmount() != 0);
     }
 
-    public abstract int getNextAmount(AID broker, ArticleType typ);
+    public abstract int getNextAmount(AID broker, ArticleType type, int maxAmount);
 
-    public abstract double getNextBudget(AID broker, ArticleType typ);
+    public abstract double getNextBudget(AID broker, ArticleType type);
 
     public Double getMultiplier(AID broker, ArticleType type) {
         return hierarchy.get(new BrokerHierarchyKey(broker, type));
@@ -51,7 +56,7 @@ public abstract class BrokerHierarchy implements Serializable {
         brokers.forEach(broker -> {
             isBrokerAliveMap.putIfAbsent(broker, true);
             types.forEach(type -> {
-                hierarchy.putIfAbsent(new BrokerHierarchyKey(broker, type), 1d);
+                hierarchy.putIfAbsent(new BrokerHierarchyKey(broker, type), 10d);
                 brokerBoughtAny.putIfAbsent(new BrokerHierarchyKey(broker, type), true);
             });
         });
