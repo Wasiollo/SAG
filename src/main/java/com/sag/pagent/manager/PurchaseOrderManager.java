@@ -82,4 +82,12 @@ public class PurchaseOrderManager implements Serializable {
         double currBudget = budgetMap.get(customerAgentId);
         budgetMap.put(customerAgentId, currBudget + remainBudget);
     }
+
+    public int getAmount(String customerAgentId, ArticleType articleType) {
+        Map<ArticleType, Integer> articlesToBuy = articlesToBuyMap.get(customerAgentId);
+        if (articlesToBuy == null) return -1;
+        Integer remaining = articlesToBuy.get(articleType);
+        if (remaining == null) return -2;
+        return remaining;
+    }
 }

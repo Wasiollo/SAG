@@ -105,13 +105,20 @@ public class ManagerAgent extends BasicAgent {
 
         amount = purchaseOrderManager.getMinAmount(customerAgentId, articleType, amount);
         budget = purchaseOrderManager.getMinBudget(customerAgentId, budget);
+        BuyProductsRequest buyProductsRequest = new BuyProductsRequest(articleType, amount, budget);
 
         if (amount == 0 || budget == 0) {
-            log.info("Nothing to buy for ArticleType: {}, amount: {}, budget: {}", articleType, amount, budget);
-            return null;
+            log.info("Nothing to buy for {} ArticleType: {}, amount: {}, budget: {}", broker.getLocalName(), articleType, amount, budget);
+            brokerHierarchy.setBrokerBoughtAny(broker, articleType, false);
+            buyProductsRequest = null;
+        }
+        if (brokerHierarchy.isFinished(articleType)) {
+            log.info("Buying ArticleType {} is finished. Remaining amount {}. Broker id {}", articleType,
+                    purchaseOrderManager.getAmount(customerAgentId, articleType), broker.getLocalName());
+            buyProductsRequest = null;
         }
 
-        return new BuyProductsRequest(articleType, amount, budget);
+        return buyProductsRequest;
     }
 
     public class BuyProductsRespond extends HandleOneRespond {
@@ -130,13 +137,14 @@ public class ManagerAgent extends BasicAgent {
             Object content = msg.getContentObject();
             if (content instanceof BuyProductsResponse) {
                 BuyProductsResponse response = (BuyProductsResponse) content;
+                ArticleType articleType = response.getRequest().getArticleType();
                 brokerHierarchy.updateHierarchy(msg.getSender(), response, buyProductsRequest);
                 purchaseOrderManager.recover(customerAgentId, response);
-                if (brokerHierarchy.isFinished(response.getRequest().getArticleType())) {
-                    log.info("Buying ArticleType {} is finished", response.getRequest().getArticleType());
-                } else {
-                    sendBuyProductsToBrokerAgents(customerAgentId, msg.getSender(), response.getRequest().getArticleType());
+                if (response.getBoughtAmount() != 0) {
+                    log.info("Bought {} ArticleType {} remaining {}", response.getBoughtAmount(), articleType,
+                            purchaseOrderManager.getAmount(customerAgentId, articleType));
                 }
+                sendBuyProductsToBrokerAgents(customerAgentId, msg.getSender(), articleType);
             }
             finished();
         }
