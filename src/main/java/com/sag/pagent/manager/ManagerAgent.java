@@ -144,8 +144,10 @@ public class ManagerAgent extends BasicAgent {
                 if (response.getBoughtAmount() != 0) {
                     log.info("Broker {} bought {} using {} avg {} ArticleType {} remaining {}", msg.getSender().getLocalName(),
                             response.getBoughtAmount(), response.getUsedMoney(),
-                            response.getUsedMoney() / response.getBoughtAmount(),
+                            ((double) ((int) (response.getUsedMoney() / response.getBoughtAmount() * 100.0))) / 100.0,
                             articleType, purchaseOrderManager.getAmount(customerAgentId, articleType));
+                } else {
+                    log.info("Broker {} bought nothing", msg.getSender().getLocalName());
                 }
                 sendBuyProductsToBrokerAgents(customerAgentId, msg.getSender(), articleType);
             }

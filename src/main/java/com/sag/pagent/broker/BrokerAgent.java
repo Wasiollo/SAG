@@ -68,6 +68,7 @@ public class BrokerAgent extends BasicAgent implements QueryShopsBehaviour.Query
 
     private void handleRegisterShopAgent(ACLMessage msg) {
         try {
+            log.info("Register ShopAgent: {}", msg.getSender().getLocalName());
             RegisterShopAgent registerShopAgent = (RegisterShopAgent) msg.getContentObject();
             queryShopsBehaviour.addShopAgent(new AID(registerShopAgent.getShopAgentName(), AID.ISGUID));
         } catch (UnreadableException e) {
