@@ -48,6 +48,10 @@ public class ArticleStorage {
             articleMap.remove(article.getArticleType());
         }
 
-        return new PurchaseReport(article.getArticleType(), bought, price);
+        return new PurchaseReport(article.getArticleType(), bought, trimPrice(price));
+    }
+
+    private double trimPrice(double budget) {
+        return ((double) ((int) (budget * 100.0))) / 100.0;
     }
 }

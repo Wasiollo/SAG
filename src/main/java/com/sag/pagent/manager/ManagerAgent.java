@@ -100,8 +100,8 @@ public class ManagerAgent extends BasicAgent {
     }
 
     private BuyProductsRequest prepareProductToBuyByBroker(String customerAgentId, AID broker, ArticleType articleType) {
-        int amount = (int) (10 * brokerHierarchy.getMultiplier(articleType, broker));
-        double budget = 100d * brokerHierarchy.getMultiplier(articleType, broker);
+        int amount = brokerHierarchy.getNextAmount(broker, articleType);
+        double budget = brokerHierarchy.getNextBudget(broker, articleType);
 
         amount = purchaseOrderManager.getMinAmount(customerAgentId, articleType, amount);
         budget = purchaseOrderManager.getMinBudget(customerAgentId, budget);
@@ -113,8 +113,9 @@ public class ManagerAgent extends BasicAgent {
             buyProductsRequest = null;
         }
         if (brokerHierarchy.isFinished(articleType)) {
-            log.info("Buying ArticleType {} is finished. Remaining amount {}. Broker id {}", articleType,
-                    purchaseOrderManager.getAmount(customerAgentId, articleType), broker.getLocalName());
+            log.info("Buying ArticleType {} is finished. Remaining amount {}. Remaining budget {}. Broker id {}",
+                    articleType, purchaseOrderManager.getAmount(customerAgentId, articleType),
+                    purchaseOrderManager.getBudget(customerAgentId), broker.getLocalName());
             buyProductsRequest = null;
         }
 
@@ -138,11 +139,13 @@ public class ManagerAgent extends BasicAgent {
             if (content instanceof BuyProductsResponse) {
                 BuyProductsResponse response = (BuyProductsResponse) content;
                 ArticleType articleType = response.getRequest().getArticleType();
-                brokerHierarchy.updateHierarchy(msg.getSender(), response, buyProductsRequest);
+                brokerHierarchy.updateHierarchy(msg.getSender(), buyProductsRequest, response);
                 purchaseOrderManager.recover(customerAgentId, response);
                 if (response.getBoughtAmount() != 0) {
-                    log.info("Bought {} ArticleType {} remaining {}", response.getBoughtAmount(), articleType,
-                            purchaseOrderManager.getAmount(customerAgentId, articleType));
+                    log.info("Broker {} bought {} using {} avg {} ArticleType {} remaining {}", msg.getSender().getLocalName(),
+                            response.getBoughtAmount(), response.getUsedMoney(),
+                            response.getUsedMoney() / response.getBoughtAmount(),
+                            articleType, purchaseOrderManager.getAmount(customerAgentId, articleType));
                 }
                 sendBuyProductsToBrokerAgents(customerAgentId, msg.getSender(), articleType);
             }

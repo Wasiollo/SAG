@@ -61,9 +61,13 @@ public class PurchaseOrderManager implements Serializable {
 
     public double getMinBudget(String customerAgentId, double budget) {
         double currBudget = budgetMap.get(customerAgentId);
-        double minusBudget = min(budget, currBudget);
+        double minusBudget = min(trimBudget(budget), currBudget);
         budgetMap.put(customerAgentId, currBudget - minusBudget);
         return minusBudget;
+    }
+
+    private double trimBudget(double budget) {
+        return ((double) ((int) (budget * 100.0))) / 100.0;
     }
 
     public void addAmount(String customerAgentId, ArticleType articleType, Integer amount) {
@@ -89,5 +93,9 @@ public class PurchaseOrderManager implements Serializable {
         Integer remaining = articlesToBuy.get(articleType);
         if (remaining == null) return -2;
         return remaining;
+    }
+
+    public double getBudget(String customerAgentId) {
+        return budgetMap.get(customerAgentId);
     }
 }

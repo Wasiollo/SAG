@@ -23,10 +23,27 @@ public abstract class BrokerHierarchy implements Serializable {
         this.purchaseOrderManager = purchaseOrderManager;
     }
 
-    public abstract void updateHierarchy(AID sender, BuyProductsResponse response, BuyProductsRequest buyProductsRequest);
+    public void updateHierarchy(AID broker, BuyProductsRequest request, BuyProductsResponse response) {
+        update(broker, request, response);
+        checkIfBrokerBoughtSth(broker, response);
+    }
 
-    public Double getMultiplier(ArticleType type, AID broker) {
+    public abstract void update(AID broker, BuyProductsRequest request, BuyProductsResponse response);
+
+    private void checkIfBrokerBoughtSth(AID broker, BuyProductsResponse response) {
+        setBrokerBoughtAny(broker, response.getRequest().getArticleType(), response.getBoughtAmount() != 0);
+    }
+
+    public abstract int getNextAmount(AID broker, ArticleType typ);
+
+    public abstract double getNextBudget(AID broker, ArticleType typ);
+
+    public Double getMultiplier(AID broker, ArticleType type) {
         return hierarchy.get(new BrokerHierarchyKey(broker, type));
+    }
+
+    public void setMultiplier(AID broker, ArticleType type, double value) {
+        hierarchy.put(new BrokerHierarchyKey(broker, type), value);
     }
 
     public void updateBrokers(List<AID> brokers) {
@@ -58,5 +75,16 @@ public abstract class BrokerHierarchy implements Serializable {
 
     public void setBrokerBoughtAny(AID broker, ArticleType type, boolean boughtAny) {
         brokerBoughtAny.put(new BrokerHierarchyKey(broker, type), boughtAny);
+    }
+
+    public double getAverage(ArticleType type) {
+        double sum = isBrokerAliveMap.keySet().stream()
+                .mapToDouble(broker -> getMultiplier(broker, type))
+                .sum();
+        return sum / isBrokerAliveMap.size();
+    }
+
+    public int getBrokerSize() {
+        return isBrokerAliveMap.size();
     }
 }
